@@ -2,13 +2,32 @@ from scipy import sparse
 import numpy as np
 #import pandas
 import csv
+import pickle
 
 #def generate_coo_sparse_matrix():
+
+class Sparse_CSR:
+    def __init__(self, data, rows, cols):
+        self.data = data
+        self.rows = rows
+        self.cols = cols
+
+    def access_element(self, row, col):
+        row_val  = self.rows[row]
+        data_idx = row_val
+        cols     = self.cols[row_val]
+        while cols <= col:
+            if cols == col:
+                return self.data[data_idx]
+            data_idx += 1
+            cols = self.cols[data_idx]
+        return 0
+
 
 def process_csv(filename):
     """
 
-    Function for reading training data csv files.
+    Function for reading csv data files.
     Takes filename as argument. Uses CSR format
 
     """
@@ -36,5 +55,13 @@ def process_csv(filename):
             flag = False
         #    data.append((row[0], row[1], row[2]))
     #for d in data: #    print(d)
-    return [data, cols, rows]
+    matrix = Sparse_CSR(data, rows, cols)
+    return matrix
+
+if (__name__ == '__main__'):
+    matrix = process_csv('data/testing.csv')
+
+    file = open('sparse_testing', 'wb')
+    pickle.dump(matrix, file)
+    file.close()
 
