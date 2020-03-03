@@ -11,6 +11,8 @@ class Sparse_CSR:
         self.data = data
         self.rows = rows
         self.cols = cols
+        self.num_rows = len(rows)
+        self.len_data = len(data)
 
     def access_element(self, row, col):
         row_val  = self.rows[row]
@@ -23,6 +25,11 @@ class Sparse_CSR:
             cols = self.cols[data_idx]
         return 0
 
+    def last_col_value(self, row):
+        if self.num_rows == row + 1:
+            return self.data[self.len_data - 1]
+        idx = self.rows[row + 1] - 1
+        return self.data[idx]
 
 def process_csv(filename):
     """
@@ -59,9 +66,10 @@ def process_csv(filename):
     return matrix
 
 if (__name__ == '__main__'):
-    matrix = process_csv('data/testing.csv')
+    print("main")
+    #matrix = process_csv('data/testing.csv')
 
-    file = open('sparse_testing', 'wb')
-    pickle.dump(matrix, file)
-    file.close()
+   # file = open('sparse_testing', 'wb')
+   # pickle.dump(matrix, file)
+   # file.close()
 
