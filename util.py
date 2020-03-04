@@ -26,10 +26,14 @@ class Sparse_CSR:
         return 0
 
     def last_col_value(self, row):
+        idx = self.get_idx_last_item_in_row(row)
+        return self.data[idx]
+
+    def get_idx_last_item_in_row(self, row):
         if self.num_rows == row + 1:
             return self.data[self.len_data - 1]
-        idx = self.rows[row + 1] - 1
-        return self.data[idx]
+        else:
+            return self.rows[row + 1] - 1
 
 def process_csv(filename):
     """
@@ -66,10 +70,10 @@ def process_csv(filename):
     return matrix
 
 if (__name__ == '__main__'):
-    print("main")
-    #matrix = process_csv('data/testing.csv')
+    #print("main")
+    matrix = process_csv('data/testing.csv')
 
-   # file = open('sparse_testing', 'wb')
-   # pickle.dump(matrix, file)
-   # file.close()
+    file = open('sparse_testing', 'wb')
+    pickle.dump(matrix, file)
+    file.close()
 
