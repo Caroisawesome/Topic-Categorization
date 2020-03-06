@@ -21,7 +21,7 @@ def create_conditional_totals_matrix(crs_matrix):
 
     return (M, class_totals)
 
-def create_conditional_probabilities_matrix(regular_matrix, class_totals, beta):
+def create_conditional_probabilities_matrix(regular_matrix, class_totals, alpha):
     conditional_m = np.zeros((20,61188))
     class_probabilities = np.zeros(20)
     total = 0
@@ -33,7 +33,7 @@ def create_conditional_probabilities_matrix(regular_matrix, class_totals, beta):
             if (class_totals[i] > 0):
                 if (regular_matrix[i][j] > class_totals[i]):
                     print(regular_matrix[i][j], class_totals[i])
-                conditional_m[i][j] = (regular_matrix[i][j]+ beta)/(class_totals[i]+(beta*61188))
+                conditional_m[i][j] = (regular_matrix[i][j]+(alpha -1))/(class_totals[i]+((alpha-1)*61188))
 
     for i in range(0,num_rows):
         class_probabilities[i] = class_totals[i]/total
@@ -63,9 +63,9 @@ def convert_matrix_to_CRS(matrix):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-def get_class_word_probabilities(crs_matrix, beta):
+def get_class_word_probabilities(crs_matrix, alpha):
     (conditional_totals, class_totals) = create_conditional_totals_matrix(crs_matrix)
-    (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals, beta)
+    (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals, alpha)
     return (conditional_probabilities, class_probabilities)
 
 def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
@@ -102,5 +102,6 @@ if (__name__ == '__main__'):
     file.close()
     file2.close()
     beta = 1/61188
-    (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix, beta)
+    alpha = 1 + beta
+    (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix, alpha)
     classify(conditional_probability_matrix, class_probabilities, matrix2)
