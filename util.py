@@ -43,6 +43,14 @@ class Sparse_CSR:
         else:
             return self.rows[row + 1] - 1
 
+def write_csv(name, data):
+    file = 'output' + name + '.csv'
+    with open(file, 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter = ',')
+        writer.writerow(['id', 'class'])
+        for x in data:
+            writer.writerow(x)
+
 def process_csv(filename):
     """
 
@@ -62,7 +70,7 @@ def process_csv(filename):
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
         #yield next(reader)
         for row in tmp:
-            for i in range(0, len(row)):
+            for i in range(1, len(row)):
                 val = int(row[i])
                 if val > 0:
                     data.append(val)
@@ -80,8 +88,14 @@ def process_csv(filename):
 if (__name__ == '__main__'):
 #    #print("main")
     matrix = process_csv('data/training.csv')
+    matrix_test = process_csv('data/testing.csv')
 
-    file = open('sparse_testing', 'wb')
+    file = open('sparse_training', 'wb')
+    file2 = open('sparse_testing', 'wb')
+
     pickle.dump(matrix, file)
+    pickle.dump(matrix_test, file2)
+
     file.close()
+    file2.close()
 
