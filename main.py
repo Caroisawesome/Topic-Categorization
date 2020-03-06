@@ -76,11 +76,11 @@ def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
     row_idx       = testing_csr.rows[row_num]
     for j in range(0, len(class_prob)):
         x = math.log2(class_prob[j])
-        for i in range(row_idx + 1, testing_csr.get_idx_last_item_in_row(row_idx)):
+        for i in range(row_idx, testing_csr.get_idx_last_item_in_row(row_num)):
             col_idx    = testing_csr.cols[i]
             likelihood = testing_csr.data[i] * (math.log2(cond_prob_matrix[j][col_idx]))
             probabilities.append(x + likelihood)
-            classes.append(col_idx + 1)
+            classes.append(j + 1)
     idx = probabilities.index(max(probabilities))
     return classes[idx]
 
