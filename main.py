@@ -21,12 +21,11 @@ def create_conditional_totals_matrix(crs_matrix):
 
     return (M, class_totals)
 
-def create_conditional_probabilities_matrix(regular_matrix, class_totals):
+def create_conditional_probabilities_matrix(regular_matrix, class_totals, beta):
     conditional_m = np.zeros((20,61188))
     class_probabilities = np.zeros(20)
     total = 0
     num_rows = len(regular_matrix)
-    beta = 1/61188
 
     for i in range(0,num_rows):
         total += class_totals[i]
@@ -34,7 +33,7 @@ def create_conditional_probabilities_matrix(regular_matrix, class_totals):
             if (class_totals[i] > 0):
                 if (regular_matrix[i][j] > class_totals[i]):
                     print(regular_matrix[i][j], class_totals[i])
-                conditional_m[i][j] = (regular_matrix[i][j]+ beta)/(class_totals[i]+1)
+                conditional_m[i][j] = (regular_matrix[i][j]+ beta)/(class_totals[i]+(beta*61188))
 
     for i in range(0,num_rows):
         class_probabilities[i] = class_totals[i]/total
@@ -64,9 +63,9 @@ def convert_matrix_to_CRS(matrix):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-def get_class_word_probabilities(crs_matrix):
+def get_class_word_probabilities(crs_matrix, beta):
     (conditional_totals, class_totals) = create_conditional_totals_matrix(crs_matrix)
-    (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals)
+    (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals, beta)
     return (conditional_probabilities, class_probabilities)
 
 def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
@@ -102,6 +101,6 @@ if (__name__ == '__main__'):
     matrix2 = pickle.load(file2)
     file.close()
     file2.close()
-
-    (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix)
+    beta = 1/61188
+    (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix, beta)
     classify(conditional_probability_matrix, class_probabilities, matrix2)
