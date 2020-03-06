@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 import math
+import util
 from util import Sparse_CSR
 
 
@@ -88,7 +89,7 @@ def classify(cond_prob_matrix, class_prob, testing_csr):
         class_id = classify_row(i, class_prob, cond_prob_matrix, testing_csr)
         data.append([counter, class_id])
         counter += 1
-    write_csv('output', data)
+    util.write_csv('output', data)
 
 
 
