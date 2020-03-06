@@ -3,29 +3,50 @@ import numpy as np
 from util import Sparse_CSR
 
 
-def create_probability_matrix_2(crs_matrix):
+def create_conditional_totals_matrix(crs_matrix):
     M = np.zeros((20,61188))
     class_totals = np.zeros(20)
-
     for row in range(0, crs_matrix.num_rows):
         row_start = crs_matrix.rows[row]
         row_end = crs_matrix.get_idx_last_item_in_row(row)
         class_val = crs_matrix.data[row_end] - 1
-        class_totals[class_val]+=1
+
         for i in range(row_start, row_end):
             col = crs_matrix.cols[i]
-            M[class_val][col] += crs_matrix.data[i]
+            data_val = crs_matrix.data[i]
+            M[class_val][col] += data_val
+            class_totals[class_val]+=data_val
 
-    return convert_matrix_to_CRS(M)
+    return (M, class_totals)
 
+def create_conditional_probabilities_matrix(regular_matrix, class_totals):
+    conditional_m = np.zeros((20,61188))
+    class_probabilities = np.zeros(20)
+    total = 0
+    num_rows = len(regular_matrix)
+
+    for i in range(0,num_rows):
+        total += class_totals[i]
+        for j in range(0,61188):
+            if (class_totals[i] > 0):
+                if (regular_matrix[i][j] > class_totals[i]):
+                    print(regular_matrix[i][j], class_totals[i])
+                conditional_m[i][j] = regular_matrix[i][j]/class_totals[i]
+
+    for i in range(0,num_rows):
+        class_probabilities[i] = class_totals[i]/total
+
+    return (conditional_m, class_probabilities)
+
+## TODO! not working yet
 def convert_matrix_to_CRS(matrix):
     data = []
     cols = []
     rows = []
     idx_data = 0
     flag = False
-
     for row in matrix:
+
         for i in range(0, len(row)):
             val = int(row[i])
             if val > 0:
@@ -36,53 +57,21 @@ def convert_matrix_to_CRS(matrix):
                     flag = True
                     rows.append(idx_data)
         flag = False
+    print("data", data)
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-
-def create_probability_matrix(crs_matrix):
-
-    unique_cols = sorted(list(set(crs_matrix.cols)))
-    num_cols = len(unique_cols)
-    num_data = crs_matrix.len_data
-    col_idx_mapping = {}
-    summed_data_matrix =[np.zeros(num_cols) for i in range(20)]
-    summed_col_matrix =[np.zeros(num_cols) for i in range(20)]
-
-
-    print('num unique cols', num_cols)
-
-
-    # maps column values to a particular index
-    for i in range(0,num_cols):
-        col_idx_mapping[unique_cols[i]] = i
-
-
-    for r in range(0, crs_matrix.num_rows):
-        start_of_row = crs_matrix.rows[r]
-        end_of_row = crs_matrix.get_idx_last_item_in_row(r)
-
-        for c in range(start_of_row, end_of_row):
-            row_idx = crs_matrix.data[end_of_row]
-            col_idx = col_idx_mapping[crs_matrix.cols[c]]
-            data_val = crs_matrix.data[c]
-            summed_data_matrix[row_idx][col_idx] += data_val
-
-    for i in range(len(summed_data_matrix)):
-        for x in summed_data_matrix[i]:
-            if x > 0:
-                print(x)
-#    print(summed_data_matrix[0])
-
-
+def get_class_word_probabilities(crs_matrix):
+    (conditional_totals, class_totals) = create_conditional_totals_matrix(crs_matrix)
+    (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals)
+    return (conditional_probabilities, class_probabilities)
 
 if (__name__ == '__main__'):
     file = open('sparse_testing', 'rb')
     matrix = pickle.load(file)
     file.close()
 
-    m = create_probability_matrix_2(matrix)
-    #print("data", m.data)
-    #print("cols", m.cols)
-    print("rows", m.rows)
+    (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix)
+
+    print("conditional probability matrix", conditional_probability_matrix)
 
