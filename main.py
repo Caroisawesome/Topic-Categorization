@@ -14,9 +14,9 @@ def create_conditional_totals_matrix(crs_matrix):
         class_val = crs_matrix.data[row_end] - 1
 
         for i in range(row_start, row_end):
-            col = crs_matrix.cols[i]
+            col = crs_matrix.cols[i] - 1
             data_val = crs_matrix.data[i]
-            M[class_val][col-1] += data_val
+            M[class_val][col] += data_val
             class_totals[class_val]+=data_val
 
     return (M, class_totals)
@@ -104,8 +104,4 @@ if (__name__ == '__main__'):
     file2.close()
 
     (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix)
-
     classify(conditional_probability_matrix, class_probabilities, matrix2)
-    
-    print("conditional probability matrix", conditional_probability_matrix)
-    print("class probabilities", class_probabilities)
