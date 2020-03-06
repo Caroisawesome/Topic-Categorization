@@ -16,7 +16,7 @@ def create_conditional_totals_matrix(crs_matrix):
         for i in range(row_start, row_end):
             col = crs_matrix.cols[i]
             data_val = crs_matrix.data[i]
-            M[class_val][col] += data_val
+            M[class_val][col-1] += data_val
             class_totals[class_val]+=data_val
 
     return (M, class_totals)
@@ -69,18 +69,19 @@ def get_class_word_probabilities(crs_matrix):
     (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals)
     return (conditional_probabilities, class_probabilities)
 
-def classify_row(row_idx, class_prob, cond_prob_matrix, testing_csr):
+def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
     probabilities = []
     classes       = []
     max_idx       = 0
-    for c in class_prob:
-        x = math.log2(c)
+    row_idx       = testing_csr.rows[row_num]
+    for j in range(0, len(class_prob)):
+        x = math.log2(class_prob[j])
         for i in range(row_idx + 1, testing_csr.get_idx_last_item_in_row(row_idx)):
             col_idx    = testing_csr.cols[i]
-            likelihood = testing_csr.data[i] * (math.log2(cond_prob_matrix[row_idx][col_idx]))
+            likelihood = testing_csr.data[i] * (math.log2(cond_prob_matrix[j][col_idx]))
             probabilities.append(x + likelihood)
             classes.append(col_idx + 1)
-    idx = probability.index(max(probabilities))
+    idx = probabilities.index(max(probabilities))
     return classes[idx]
 
 def classify(cond_prob_matrix, class_prob, testing_csr):
@@ -91,7 +92,6 @@ def classify(cond_prob_matrix, class_prob, testing_csr):
         data.append([counter, class_id])
         counter += 1
     util.write_csv('output', data)
-
 
 
 if (__name__ == '__main__'):
