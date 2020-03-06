@@ -15,7 +15,7 @@ def create_conditional_totals_matrix(crs_matrix):
         for i in range(row_start, row_end):
             col = crs_matrix.cols[i]
             data_val = crs_matrix.data[i]
-            M[class_val][col-1] += data_val
+            M[class_val][col] += data_val
             class_totals[class_val]+=data_val
 
     return (M, class_totals)
