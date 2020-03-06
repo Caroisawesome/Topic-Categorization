@@ -94,14 +94,21 @@ def classify(cond_prob_matrix, class_prob, testing_csr):
 
 
 if (__name__ == '__main__'):
+
+
+    if len(sys.argv) < 2:
+        print("Must enter commandline arguments <Beta>")
+        print("Beta: between 0.00001 and 1")
+        exit(0)
+
+    beta = float(sys.argv[1])
     file = open('sparse_training', 'rb')
     file2 = open('sparse_testing', 'rb')
-    
     matrix = pickle.load(file)
     matrix2 = pickle.load(file2)
     file.close()
     file2.close()
-    beta = 1/61188
+    #beta = 1/61188
     alpha = 1 + beta
     (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix, alpha)
     classify(conditional_probability_matrix, class_probabilities, matrix2)
