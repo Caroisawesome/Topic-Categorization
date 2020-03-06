@@ -44,7 +44,12 @@ class Sparse_CSR:
             return self.rows[row + 1] - 1
 
 def write_csv(name, data):
-    file = 'output' + name + '.csv'
+    """
+
+    Write data to csv file. Takes desired filename and data to be written.
+
+    """
+    file = name + '.csv'
     with open(file, 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter = ',')
         writer.writerow(['id', 'class'])
@@ -85,17 +90,17 @@ def process_csv(filename):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-if (__name__ == '__main__'):
-#    #print("main")
-    matrix = process_csv('data/training.csv')
-    matrix_test = process_csv('data/testing.csv')
-
-    file = open('sparse_training', 'wb')
-    file2 = open('sparse_testing', 'wb')
-
-    pickle.dump(matrix, file)
-    pickle.dump(matrix_test, file2)
-
-    file.close()
-    file2.close()
+#if (__name__ == '__main__'):
+##    #print("main")
+#    matrix = process_csv('data/training.csv')
+#    matrix_test = process_csv('data/testing.csv')
+#
+#    file = open('sparse_training', 'wb')
+#    file2 = open('sparse_testing', 'wb')
+#
+#    pickle.dump(matrix, file)
+#    pickle.dump(matrix_test, file2)
+#
+#    file.close()
+#    file2.close()
 
