@@ -4,7 +4,7 @@ from util import Sparse_CSR
 
 
 def create_conditional_totals_matrix(crs_matrix):
-    M = np.zeros((20,61188))
+    M = np.zeros((20,61189))
     class_totals = np.zeros(20)
     for row in range(0, crs_matrix.num_rows):
         row_start = crs_matrix.rows[row]
@@ -20,7 +20,7 @@ def create_conditional_totals_matrix(crs_matrix):
     return (M, class_totals)
 
 def create_conditional_probabilities_matrix(regular_matrix, class_totals):
-    conditional_m = np.zeros((20,61188))
+    conditional_m = np.zeros((20,61189))
     class_probabilities = np.zeros(20)
     total = 0
     num_rows = len(regular_matrix)
