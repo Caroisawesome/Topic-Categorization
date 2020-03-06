@@ -1,5 +1,6 @@
 import pickle
 import numpy as np
+import math
 from util import Sparse_CSR
 
 
@@ -14,7 +15,7 @@ def create_conditional_totals_matrix(crs_matrix):
         for i in range(row_start, row_end):
             col = crs_matrix.cols[i]
             data_val = crs_matrix.data[i]
-            M[class_val][col] += data_val
+            M[class_val][col-1] += data_val
             class_totals[class_val]+=data_val
 
     return (M, class_totals)
@@ -67,12 +68,43 @@ def get_class_word_probabilities(crs_matrix):
     (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals)
     return (conditional_probabilities, class_probabilities)
 
+def classify_row(row_idx, class_prob, cond_prob_matrix, testing_csr):
+    probabilities = []
+    classes       = []
+    max_idx       = 0
+    for c in class_prob:
+        x = math.log2(c)
+        for i in range(row_idx + 1, testing_csr.get_idx_last_item_in_row(row_idx)):
+            col_idx    = testing_csr.cols[i]
+            likelihood = testing_csr.data[i] * (math.log2(cond_prob_matrix[row_idx][col_idx]))
+            probabilities.append(x + likelihood)
+            classes.append(col_idx + 1)
+    idx = probability.index(max(probabilities))
+    return classes[idx]
+
+def classify(cond_prob_matrix, class_prob, testing_csr):
+    data = []
+    counter = 12001
+    for i in range(0, len(testing_csr.rows)):
+        class_id = classify_row(i, class_prob, cond_prob_matrix, testing_csr)
+        data.append([counter, class_id])
+        counter += 1
+    write_csv('output', data)
+
+
+
 if (__name__ == '__main__'):
-    file = open('sparse_testing', 'rb')
+    file = open('sparse_training', 'rb')
+    file2 = open('sparse_testing', 'rb')
+    
     matrix = pickle.load(file)
+    matrix2 = pickle.load(file2)
     file.close()
+    file2.close()
 
     (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix)
+
+    classify(conditional_probability_matrix, class_probabilities, matrix2)
     
     print("conditional probability matrix", conditional_probability_matrix)
     print("class probabilities", class_probabilities)
