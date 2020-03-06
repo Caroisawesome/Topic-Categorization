@@ -26,15 +26,20 @@ class Sparse_CSR:
         return 0
 
     def last_col_value(self, row):
-        if self.num_rows == row + 1:
-            return self.get_idx_last_item_in_row(row)
-        else:
-            idx = self.get_idx_last_item_in_row(row)
-            return self.data[idx]
+
+        idx = self.get_idx_last_item_in_row(row)
+        return self.data[idx]
+        
+        #if self.num_rows == row + 1:
+        #    return self.get_idx_last_item_in_row(row)
+        #else:
+        #    idx = self.get_idx_last_item_in_row(row)
+        #    return self.data[idx]
+        
 
     def get_idx_last_item_in_row(self, row):
         if self.num_rows == row + 1:
-            return self.data[self.len_data - 1]
+            return self.len_data - 1
         else:
             return self.rows[row + 1] - 1
 

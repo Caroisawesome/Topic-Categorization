@@ -72,6 +72,6 @@ if (__name__ == '__main__'):
     file.close()
 
     (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix)
-
+    
     print("conditional probability matrix", conditional_probability_matrix)
-
+    print("class probabilities", class_probabilities)
