@@ -1,4 +1,4 @@
-from scipy import sparse
+from scipy.sparse import csr_matrix
 import numpy as np
 #import pandas
 import csv
@@ -26,16 +26,8 @@ class Sparse_CSR:
         return 0
 
     def last_col_value(self, row):
-
         idx = self.get_idx_last_item_in_row(row)
         return self.data[idx]
-        
-        #if self.num_rows == row + 1:
-        #    return self.get_idx_last_item_in_row(row)
-        #else:
-        #    idx = self.get_idx_last_item_in_row(row)
-        #    return self.data[idx]
-        
 
     def get_idx_last_item_in_row(self, row):
         if self.num_rows == row + 1:
@@ -90,9 +82,9 @@ def process_csv(filename):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-#if (__name__ == '__main__'):
-##    #print("main")
-#    matrix = process_csv('data/training.csv')
+if (__name__ == '__main__'):
+    #print("main")
+    matrix = process_csv('data/training.csv')
 #    matrix_test = process_csv('data/testing.csv')
 #
 #    file = open('sparse_training', 'wb')
