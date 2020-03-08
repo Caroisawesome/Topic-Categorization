@@ -33,12 +33,10 @@ def create_conditional_probabilities_matrix(regular_matrix, class_totals, row_su
 
     conditional_m = np.zeros((num_classes,num_words))
     class_probabilities = np.zeros(num_classes)
-    total = 0
     num_rows = len(regular_matrix)
     total = sum(class_totals)
 
     for i in range(0,num_rows):
-        total += class_totals[i]
         class_probabilities[i] = class_totals[i]/total
         for j in range(0,num_words):
             conditional_m[i][j] = (regular_matrix[i][j]+(alpha - 1))/(row_sums[i]+((alpha-1)*num_words))
