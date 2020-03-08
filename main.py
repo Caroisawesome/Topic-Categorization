@@ -35,17 +35,13 @@ def create_conditional_probabilities_matrix(regular_matrix, class_totals, row_su
     class_probabilities = np.zeros(num_classes)
     total = 0
     num_rows = len(regular_matrix)
+    total = sum(class_totals)
 
     for i in range(0,num_rows):
         total += class_totals[i]
-        for j in range(0,num_words):
-            if (class_totals[i] > 0):
-                if (regular_matrix[i][j] > row_sums[i]):
-                    print(regular_matrix[i][j], row_sums[i])
-                conditional_m[i][j] = (regular_matrix[i][j]+(alpha -1))/(row_sums[i]+((alpha-1)*num_words))
-
-    for i in range(0,num_rows):
         class_probabilities[i] = class_totals[i]/total
+        for j in range(0,num_words):
+            conditional_m[i][j] = (regular_matrix[i][j]+(alpha - 1))/(row_sums[i]+((alpha-1)*num_words))
 
     return (conditional_m, class_probabilities)
 
@@ -56,16 +52,18 @@ def get_class_word_probabilities(crs_matrix, alpha):
 
 def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
     probabilities = []
-    classes       = []
+    classes       = [] 
     max_idx       = 0
     row_idx       = testing_csr.rows[row_num]
+
     for j in range(0, len(class_prob)):
         x = math.log2(class_prob[j])
+        likelihood = 0
         for i in range(row_idx, testing_csr.get_idx_last_item_in_row(row_num)):
             col_idx    = testing_csr.cols[i]
-            likelihood = testing_csr.data[i] * (math.log2(cond_prob_matrix[j][col_idx]))
-            probabilities.append(x + likelihood)
-            classes.append(j + 1)
+            likelihood += testing_csr.data[i] * (math.log2(cond_prob_matrix[j][col_idx]))
+        classes.append(j + 1 )
+        probabilities.append(x + likelihood)
 
     idx = np.argmax(probabilities)
     return classes[idx]
