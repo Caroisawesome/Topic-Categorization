@@ -35,6 +35,13 @@ class Sparse_CSR:
         else:
             return self.rows[row + 1] - 1
 
+    def get_row(self, row):
+        out = []
+        for i in range(self.rows[row], self.get_idx_last_item_in_row(row)+1):
+            out.append(self.data[i])
+        return out
+
+
 def write_csv(name, data):
     """
 
