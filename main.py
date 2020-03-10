@@ -7,6 +7,11 @@ from util import Sparse_CSR
 
 num_words = 61189
 num_classes = 20
+
+def sigmoid(z):
+    return 1.0 / (1 + math.exp(-z))
+
+
 def create_conditional_totals_matrix(crs_matrix):
     M = np.zeros((num_classes, num_words))
     class_totals = np.zeros(num_classes)
