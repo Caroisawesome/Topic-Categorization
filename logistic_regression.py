@@ -6,14 +6,14 @@ import numpy as np
 
 
 def create_scipy_csr():
-    file1 = open('sparse_training', 'rb')
+    file1 = open('sparse_training_ones', 'rb')
     matrix = pickle.load(file1)
     file1.close()
     matrix_scipy = csr_matrix((matrix.data, matrix.cols, matrix.rows))
     return matrix, matrix_scipy
 
 def probability_values(W, X):
-    matrix = W.multiply(X.transpose(axes=None,copy=True))
+    matrix = W * X.transpose()
     return matrix.expm1() # This is exponential - 1, may make a difference. ****
 
 def build_delta_matrix(matrix):
@@ -21,7 +21,7 @@ def build_delta_matrix(matrix):
     row  = []
     col  = []
     column = 0
-    for i in range(0, 12000):
+    for i in range(1, 12001):
         classification = matrix.last_col_value(i)
         data.append(1)
         row.append(classification - 1)
@@ -31,8 +31,15 @@ def build_delta_matrix(matrix):
     return delta
 
 
-def logistic_regression(W, X, eta, lam):
+def logistic_regression(W, X, Del, eta, lam):
+    W1 = W
+    #print('length of W', W.get_shape())
+    #print('length of X', X.get_shape())
+    #print('length of Delta', Del.get_shape())
     for i in range(0, 1000):
+        WX = probability_values(W1, X)
+        W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
+    return W1
 
 
 
@@ -48,9 +55,13 @@ if (__name__ == '__main__'):
     lam = float(sys.argv[2])
 
     mat, matrix = create_scipy_csr()
-    W = np.zeros((20,61189))
+    #print(mat.data)
+    obj = np.zeros((20, 61189 + 1))
+    obj2 = obj.tolist()
+    W = csr_matrix(obj2)
     delta = build_delta_matrix(mat)
-    print(delta.toarray())
-    logistic_regression(W, matrix.transpose(axes=None, copy=True), eta, lam) # Pick random eta and lam.
+    #print(delta.toarray())
+    out = logistic_regression(W, matrix, delta, eta, lam) # Pick random eta and lam.
     #print(matrix.getrow(0))
+    print(out)
     #print(mat.get_row(0))
