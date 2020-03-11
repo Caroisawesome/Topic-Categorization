@@ -1,6 +1,7 @@
 from util import Sparse_CSR
 from scipy.sparse import csr_matrix
 import pickle
+import sys
 import numpy as np
 
 
@@ -15,6 +16,20 @@ def probability_values(W, X):
     matrix = W.multiply(X.transpose(axes=None,copy=True))
     return matrix.expm1() # This is exponential - 1, may make a difference. ****
 
+def build_delta_matrix(matrix):
+    data = []
+    row  = []
+    col  = []
+    column = 0
+    for i in range(0, 12000):
+        classification = matrix.last_col_value(i)
+        data.append(1)
+        row.append(classification - 1)
+        col.append(column)
+        column += 1
+    delta = csr_matrix((data, (row, col)))
+    return delta
+
 
 def logistic_regression(W, X, eta, lam):
     for i in range(0, 1000):
@@ -22,8 +37,20 @@ def logistic_regression(W, X, eta, lam):
 
 
 if (__name__ == '__main__'):
+
+    if len(sys.argv) < 3:
+        print('Must enter commandline arguments <Eta> <Lambda>')
+        print("Eta:    0.01 to 0.001")
+        print("Lambda: 0.01 to 0.001")
+        exit(0)
+
+    eta = float(sys.argv[1])
+    lam = float(sys.argv[2])
+
     mat, matrix = create_scipy_csr()
     W = np.zeros((20,61189))
-    logistic_regression(W, matrix.transpose(axes=None, copy=True), 0.01, 0.01) # Pick random eta and lam.
+    delta = build_delta_matrix(mat)
+    print(delta.toarray())
+    logistic_regression(W, matrix.transpose(axes=None, copy=True), eta, lam) # Pick random eta and lam.
     #print(matrix.getrow(0))
     #print(mat.get_row(0))

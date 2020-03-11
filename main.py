@@ -8,10 +8,6 @@ from util import Sparse_CSR
 num_words = 61189
 num_classes = 20
 
-def sigmoid(z):
-    return 1.0 / (1 + math.exp(-z))
-
-
 def create_conditional_totals_matrix(crs_matrix):
     M = np.zeros((num_classes, num_words))
     class_totals = np.zeros(num_classes)
@@ -55,7 +51,7 @@ def get_class_word_probabilities(crs_matrix, alpha):
 
 def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
     probabilities = []
-    classes       = [] 
+    classes       = []
     max_idx       = 0
     row_idx       = testing_csr.rows[row_num]
 
