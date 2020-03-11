@@ -1,6 +1,7 @@
 from util import Sparse_CSR
 from scipy.sparse import csr_matrix
 import pickle
+import sys
 import numpy as np
 
 
@@ -30,16 +31,26 @@ def build_delta_matrix(matrix):
     return delta
 
 
-#def logistic_regression(W, X, eta, lam):
-#    for i in range(0, 1000):
+def logistic_regression(W, X, eta, lam):
+    for i in range(0, 1000):
 
 
 
 if (__name__ == '__main__'):
+
+    if len(sys.argv) < 3:
+        print('Must enter commandline arguments <Eta> <Lambda>')
+        print("Eta:    0.01 to 0.001")
+        print("Lambda: 0.01 to 0.001")
+        exit(0)
+
+    eta = float(sys.argv[1])
+    lam = float(sys.argv[2])
+
     mat, matrix = create_scipy_csr()
     W = np.zeros((20,61189))
     delta = build_delta_matrix(mat)
     print(delta.toarray())
-    #logistic_regression(W, matrix.transpose(axes=None, copy=True), 0.01, 0.01) # Pick random eta and lam.
+    logistic_regression(W, matrix.transpose(axes=None, copy=True), eta, lam) # Pick random eta and lam.
     #print(matrix.getrow(0))
     #print(mat.get_row(0))
