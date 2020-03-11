@@ -14,7 +14,10 @@ def create_scipy_csr():
 
 def probability_values(W, X):
     matrix = W * X.transpose()
-    return matrix.expm1() # This is exponential - 1, may make a difference. ****
+    ones = np.ones((20,12000))
+    ones = ones.tolist()
+    ones = csr_matrix(ones)
+    return matrix.expm1() + ones
 
 def build_delta_matrix(matrix):
     data = []
