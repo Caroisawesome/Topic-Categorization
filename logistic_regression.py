@@ -39,7 +39,7 @@ def logistic_regression(W, X, Del, eta, lam):
     #print('length of W', W.get_shape())
     #print('length of X', X.get_shape())
     #print('length of Delta', Del.get_shape())
-    for i in range(0, 5):
+    for i in range(0, 1000):
         WX = probability_values(W1, X)
         W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
     return W1
