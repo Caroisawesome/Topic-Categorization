@@ -55,7 +55,7 @@ def write_csv(name, data):
         for x in data:
             writer.writerow(x)
 
-def process_csv(filename):
+def process_csv(filename, ones):
     """
 
     Function for reading csv data files.
@@ -72,6 +72,8 @@ def process_csv(filename):
         reader = csv.reader(csvfile)
         # reads csv into a list of lists
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        if ones == True:
+            tmp[:0] = [np.ones(len(tmp[0]))]
         #yield next(reader)
         for row in tmp:
             for i in range(1, len(row)):
@@ -91,15 +93,15 @@ def process_csv(filename):
 
 if (__name__ == '__main__'):
     #print("main")
-    matrix = process_csv('data/training.csv')
-#    matrix_test = process_csv('data/testing.csv')
-#
-#    file = open('sparse_training', 'wb')
-#    file2 = open('sparse_testing', 'wb')
-#
-#    pickle.dump(matrix, file)
-#    pickle.dump(matrix_test, file2)
-#
-#    file.close()
-#    file2.close()
+    matrix = process_csv('data/training.csv', True)
+    matrix_test = process_csv('data/testing.csv', True)
+
+    file = open('sparse_training_ones', 'wb')
+    file2 = open('sparse_testing_ones', 'wb')
+
+    pickle.dump(matrix, file)
+    pickle.dump(matrix_test, file2)
+
+    file.close()
+    file2.close()
 
