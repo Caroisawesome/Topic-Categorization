@@ -17,7 +17,31 @@ def probability_values(W, X):
     ones = np.ones((20,12000))
     ones = ones.tolist()
     ones = csr_matrix(ones)
-    return matrix.expm1() + ones
+    mat = matrix.expm1() + ones
+    mat = add_row_of_ones(mat)
+    return normalize_matrix(mat)
+
+def add_row_of_ones(matrix):
+    lil_mat = matrix.toarray()
+    (r,c) = lil_mat.shape
+    lil_mat[r-1, :] = 1
+    return csr_matrix(lil_mat)
+
+def normalize_matrix(matrix):
+    counts = {}
+
+    num_entries = len(matrix.data)
+    for i in range(0, num_entries):
+        if (matrix.indices[i] in counts):
+            counts[matrix.indices[i]] += matrix.data[i]
+        else:
+            counts[matrix.indices[i]] = matrix.data[i]
+
+    for i in range(0, num_entries):
+        matrix.data[i] = matrix.data[i] / counts[matrix.indices[i]]
+
+    return matrix
+
 
 def build_delta_matrix(matrix):
     data = []
