@@ -5,8 +5,8 @@ import sys
 import numpy as np
 
 
-def create_scipy_csr():
-    file1 = open('sparse_training_ones', 'rb')
+def create_scipy_csr(filename):
+    file1 = open(filename, 'rb')
     matrix = pickle.load(file1)
     file1.close()
     matrix_scipy = csr_matrix((matrix.data, matrix.cols, matrix.rows))
@@ -63,11 +63,20 @@ def logistic_regression(W, X, Del, eta, lam):
     #print('length of W', W.get_shape())
     #print('length of X', X.get_shape())
     #print('length of Delta', Del.get_shape())
-    for i in range(0, 1000):
+    for i in range(0, 10):
         WX = probability_values(W1, X)
         W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
     return W1
 
+
+def classify(matrix):
+
+    # TODO! this does not work!
+    counter = 12001
+    #for i in range(0, len(vals)):
+        #data.append([counter, vals[i]])
+        #counter += 1
+    #util.write_csv('lr_output', data)
 
 
 if (__name__ == '__main__'):
@@ -81,14 +90,18 @@ if (__name__ == '__main__'):
     eta = float(sys.argv[1])
     lam = float(sys.argv[2])
 
-    mat, matrix = create_scipy_csr()
-    #print(mat.data)
-    obj = np.zeros((20, 61189 + 1))
+    mat, matrix = create_scipy_csr('sparse_training_lr')
+    test_data, X = create_scipy_csr('sparse_testing_lr')
+
+    obj = np.zeros((20, 61188 + 1))
     obj2 = obj.tolist()
     W = csr_matrix(obj2)
     delta = build_delta_matrix(mat)
-    #print(delta.toarray())
-    out = logistic_regression(W, matrix, delta, eta, lam) # Pick random eta and lam.
-    #print(matrix.getrow(0))
-    print(out)
-    #print(mat.get_row(0))
+
+    # remove column with class values from training data
+    mat_size = matrix.get_shape()
+    matrix.resize((mat_size[0], mat_size[1]-1))
+    W = logistic_regression(W, matrix, delta, eta, lam)
+    Y = W * X.transpose()
+    classify(Y)
+    print(Y)

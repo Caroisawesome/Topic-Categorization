@@ -4,8 +4,6 @@ import numpy as np
 import csv
 import pickle
 
-#def generate_coo_sparse_matrix():
-
 class Sparse_CSR:
     def __init__(self, data, rows, cols):
         self.data = data
@@ -93,15 +91,30 @@ def process_csv(filename, ones):
 
 if (__name__ == '__main__'):
     #print("main")
-    matrix = process_csv('data/training.csv', True)
-    matrix_test = process_csv('data/testing.csv', True)
 
-    file = open('sparse_training_ones', 'wb')
-    file2 = open('sparse_testing_ones', 'wb')
+    # Import data for Logistic Regression
+    matrix_lr = process_csv('data/training.csv', True)
+    matrix_lr_test = process_csv('data/testing.csv', True)
 
-    pickle.dump(matrix, file)
-    pickle.dump(matrix_test, file2)
+    file = open('sparse_training_lr', 'wb')
+    file2 = open('sparse_testing_lr', 'wb')
+
+    pickle.dump(matrix_lr, file)
+    pickle.dump(matrix_lr_test, file2)
 
     file.close()
     file2.close()
+
+    # Import data for Naive Bayes
+    matrix_nb = process_csv('data/training.csv', False)
+    matrix_nb_test = process_csv('data/testing.csv', False)
+
+    file_nb = open('sparse_training_nb', 'wb')
+    file2_nb = open('sparse_testing_nb', 'wb')
+
+    pickle.dump(matrix_nb, file)
+    pickle.dump(matrix_nb_test, file2)
+
+    file_nb.close()
+    file2_nb.close()
 

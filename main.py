@@ -85,8 +85,8 @@ if (__name__ == '__main__'):
         exit(0)
 
     beta = float(sys.argv[1])
-    file = open('sparse_training', 'rb')
-    file2 = open('sparse_testing', 'rb')
+    file = open('sparse_training_nb', 'rb')
+    file2 = open('sparse_testing_nb', 'rb')
     matrix = pickle.load(file)
     matrix2 = pickle.load(file2)
     file.close()
