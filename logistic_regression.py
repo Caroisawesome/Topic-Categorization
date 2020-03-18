@@ -76,10 +76,13 @@ def classify(matrix):
 
     # TODO! this does not work!
     counter = 12001
-    #for i in range(0, len(vals)):
-        #data.append([counter, vals[i]])
-        #counter += 1
-    #util.write_csv('lr_output', data)
+    data = []
+    num_rows = len(matrix)
+    for i in range(0, num_rows):
+        idx = matrix[i].index(max(matrix[i]))
+        data.append([counter, idx+1])
+        counter += 1
+    util.write_csv('lr_output', data)
 
 
 if (__name__ == '__main__'):
@@ -107,5 +110,5 @@ if (__name__ == '__main__'):
     W = logistic_regression(W, matrix, delta, eta, lam)
 
     Y = W * X.transpose()
-    classify(Y)
-    print(Y)
+    classify(Y.toarray())
+    print(Y.toarray())
