@@ -3,7 +3,7 @@ from scipy.sparse import csr_matrix
 import pickle
 import sys
 import numpy as np
-
+import util
 
 def create_scipy_csr(filename):
     file1 = open(filename, 'rb')
@@ -66,7 +66,7 @@ def build_delta_matrix(matrix):
 
 def logistic_regression(W, X, Del, eta, lam):
     W1 = W
-    for i in range(0, 1000):
+    for i in range(0, 10000):
         WX = probability_values(W1, X)
         W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
     return W1
@@ -79,7 +79,7 @@ def classify(matrix):
     data = []
     num_rows = len(matrix)
     for i in range(0, num_rows):
-        idx = matrix[i].index(max(matrix[i]))
+        idx = np.argmax(matrix[i])
         data.append([counter, idx+1])
         counter += 1
     util.write_csv('lr_output', data)
@@ -110,5 +110,5 @@ if (__name__ == '__main__'):
     W = logistic_regression(W, matrix, delta, eta, lam)
 
     Y = W * X.transpose()
-    classify(Y.toarray())
-    print(Y.toarray())
+    YT = Y.transpose()
+    classify(YT.toarray())
