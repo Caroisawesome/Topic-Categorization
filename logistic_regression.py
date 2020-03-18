@@ -32,13 +32,19 @@ def normalize_matrix(matrix):
 
     num_entries = len(matrix.data)
     for i in range(0, num_entries):
-        if (matrix.indices[i] in counts):
-            counts[matrix.indices[i]] += matrix.data[i]
+
+        val = matrix.data[i]
+        col = matrix.indices[i]
+        if (col in counts):
+            counts[col] += val
         else:
-            counts[matrix.indices[i]] = matrix.data[i]
+            counts[col] = val
 
     for i in range(0, num_entries):
-        matrix.data[i] = matrix.data[i] / counts[matrix.indices[i]]
+        if (counts[matrix.indices[i]] < abs(1e-10)):
+            matrix.data[i] = matrix.data[i] / counts[matrix.indices[i]]
+        else:
+            matrix.data[i] = 0
 
     return matrix
 
@@ -60,10 +66,7 @@ def build_delta_matrix(matrix):
 
 def logistic_regression(W, X, Del, eta, lam):
     W1 = W
-    #print('length of W', W.get_shape())
-    #print('length of X', X.get_shape())
-    #print('length of Delta', Del.get_shape())
-    for i in range(0, 10):
+    for i in range(0, 1000):
         WX = probability_values(W1, X)
         W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
     return W1
@@ -102,6 +105,7 @@ if (__name__ == '__main__'):
     mat_size = matrix.get_shape()
     matrix.resize((mat_size[0], mat_size[1]-1))
     W = logistic_regression(W, matrix, delta, eta, lam)
+
     Y = W * X.transpose()
     classify(Y)
     print(Y)
