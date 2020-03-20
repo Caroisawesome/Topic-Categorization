@@ -5,16 +5,20 @@ import sys
 import numpy as np
 import util
 
+num_iterations = 10000
+num_classes = 20
+num_instances = 12000
+
 def create_scipy_csr(filename):
     file1 = open(filename, 'rb')
     matrix = pickle.load(file1)
     file1.close()
-    matrix_scipy = csr_matrix((matrix.data, matrix.cols, matrix.rows))
+    matrix_scipy = csr_matrix((matrix.data, matrix.cols, matrix.rows), dtype=np.float64)
     return matrix, matrix_scipy
 
 def probability_values(W, X):
     matrix = W * X.transpose()
-    ones = np.ones((20,12000))
+    ones = np.ones((num_classes,num_instances))
     ones = ones.tolist()
     ones = csr_matrix(ones)
     mat = matrix.expm1() + ones
@@ -25,7 +29,7 @@ def add_row_of_ones(matrix):
     lil_mat = matrix.toarray()
     (r,c) = lil_mat.shape
     lil_mat[r-1, :] = 1
-    return csr_matrix(lil_mat)
+    return csr_matrix(lil_mat, dtype=np.float64)
 
 def normalize_matrix(matrix):
     counts = {}
@@ -41,8 +45,9 @@ def normalize_matrix(matrix):
             counts[col] = val
 
     for i in range(0, num_entries):
-        if (counts[matrix.indices[i]] < abs(1e-10)):
-            matrix.data[i] = matrix.data[i] / counts[matrix.indices[i]]
+        if (counts[matrix.indices[i]] > abs(1e-10)):
+            div_val = matrix.data[i] / counts[matrix.indices[i]]
+            matrix.data[i] = div_val
         else:
             matrix.data[i] = 0
 
@@ -53,20 +58,18 @@ def build_delta_matrix(matrix):
     data = []
     row  = []
     col  = []
-    column = 0
-    for i in range(1, 12001):
+    for i in range(1, len(matrix.rows)):
         classification = matrix.last_col_value(i)
         data.append(1)
         row.append(classification - 1)
-        col.append(column)
-        column += 1
-    delta = csr_matrix((data, (row, col)))
+        col.append(i-1)
+    delta = csr_matrix((data, (row, col)), dtype=np.float64)
     return delta
 
 
 def logistic_regression(W, X, Del, eta, lam):
     W1 = W
-    for i in range(0, 10000):
+    for i in range(0, num_iterations):
         WX = probability_values(W1, X)
         W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
     return W1
@@ -74,7 +77,6 @@ def logistic_regression(W, X, Del, eta, lam):
 
 def classify(matrix):
 
-    # TODO! this does not work!
     counter = 12001
     data = []
     num_rows = len(matrix)
@@ -99,9 +101,9 @@ if (__name__ == '__main__'):
     mat, matrix = create_scipy_csr('sparse_training_lr')
     test_data, X = create_scipy_csr('sparse_testing_lr')
 
-    obj = np.zeros((20, 61188 + 1))
+    obj = np.zeros((num_classes, 61188 + 1))
     obj2 = obj.tolist()
-    W = csr_matrix(obj2)
+    W = csr_matrix(obj2, dtype=np.float64)
     delta = build_delta_matrix(mat)
 
     # remove column with class values from training data
