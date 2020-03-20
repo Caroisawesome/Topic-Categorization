@@ -39,6 +39,22 @@ class Sparse_CSR:
             out.append(self.data[i])
         return out
 
+def partition_csv(name, first):
+    """
+
+    Take the name for a CSV along with the size of the first partition 
+    and break the csv into two files.
+
+    """
+    with open(name, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        # Read into list of lists
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        split_a = tmp[:first]
+        split_b = tmp[first:]
+        print(len(split_a))
+        print(len(split_b))
+
 
 def write_csv(name, data):
     """
@@ -89,32 +105,32 @@ def process_csv(filename, ones):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-if (__name__ == '__main__'):
-    #print("main")
-
-    # Import data for Logistic Regression
-    matrix_lr = process_csv('data/training.csv', True)
-    matrix_lr_test = process_csv('data/testing.csv', True)
-
-    file = open('sparse_training_lr', 'wb')
-    file2 = open('sparse_testing_lr', 'wb')
-
-    pickle.dump(matrix_lr, file)
-    pickle.dump(matrix_lr_test, file2)
-
-    file.close()
-    file2.close()
-
-    # Import data for Naive Bayes
-    matrix_nb = process_csv('data/training.csv', False)
-    matrix_nb_test = process_csv('data/testing.csv', False)
-
-    file_nb = open('sparse_training_nb', 'wb')
-    file2_nb = open('sparse_testing_nb', 'wb')
-
-    pickle.dump(matrix_nb, file)
-    pickle.dump(matrix_nb_test, file2)
-
-    file_nb.close()
-    file2_nb.close()
+#if (__name__ == '__main__'):
+#    #print("main")
+#
+#    # Import data for Logistic Regression
+#    matrix_lr = process_csv('data/training.csv', True)
+#    matrix_lr_test = process_csv('data/testing.csv', True)
+#
+#    file = open('sparse_training_lr', 'wb')
+#    file2 = open('sparse_testing_lr', 'wb')
+#
+#    pickle.dump(matrix_lr, file)
+#    pickle.dump(matrix_lr_test, file2)
+#
+#    file.close()
+#    file2.close()
+#
+#    # Import data for Naive Bayes
+#    matrix_nb = process_csv('data/training.csv', False)
+#    matrix_nb_test = process_csv('data/testing.csv', False)
+#
+#    file_nb = open('sparse_training_nb', 'wb')
+#    file2_nb = open('sparse_testing_nb', 'wb')
+#
+#    pickle.dump(matrix_nb, file)
+#    pickle.dump(matrix_nb_test, file2)
+#
+#    file_nb.close()
+#    file2_nb.close()
 
