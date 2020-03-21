@@ -9,6 +9,29 @@ num_iterations = 10000
 num_classes = 20
 num_instances = 12000
 
+def get_accuracy_score(correct_data, classified_data):
+    actual = []
+    guess = []
+    with open(correct_data, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        # Read into list of lists
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        for row in tmp:
+            actual.append(row[0])
+
+    with open(classified_data,'r') as csvfile:
+        reader = csv.reader(csvfile)
+        # Read into list of lists
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        for row in tmp:
+            guess.append(row[1])
+
+    num_correct = 0
+    for i in range(1,len(actual)):
+        if (actual[i-1] == guess[i]):
+            num_correct+=1
+    return num_correct/len(actual)
+
 def create_scipy_csr(filename):
     file1 = open(filename, 'rb')
     matrix = pickle.load(file1)
