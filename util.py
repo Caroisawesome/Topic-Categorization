@@ -52,8 +52,10 @@ def partition_csv(name, first):
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
         split_a = tmp[:first]
         split_b = tmp[first:]
-        print(len(split_a))
-        print(len(split_b))
+        write_csv('training_new.csv', split_a)
+        write_csv('testing_new.csv',  split_b)
+        #print(len(split_a))
+        #print(len(split_b))
 
 
 def write_csv(name, data):
