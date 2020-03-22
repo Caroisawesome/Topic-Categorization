@@ -1,11 +1,12 @@
 from util import Sparse_CSR
 from scipy.sparse import csr_matrix
+import scipy
 import pickle
 import sys
 import numpy as np
 import util
 
-num_iterations = 10000
+num_iterations = 100
 num_classes = 20
 num_instances = 12000
 
@@ -98,14 +99,17 @@ def logistic_regression(W, X, Del, eta, lam):
     return W1
 
 
-def classify(matrix):
-
+def classify(Y):
+    sig = 1/(1+scipy.exp(-Y))
+    idxs = np.argmax(sig, axis=1)
+    #print(idxs)
+    #print(len(idxs))
+    #print(idxs[0,0])
     counter = 12001
     data = []
-    num_rows = len(matrix)
+    num_rows = len(idxs)
     for i in range(0, num_rows):
-        idx = np.argmax(matrix[i])
-        data.append([counter, idx+1])
+        data.append([counter, idxs[i,0]+1])
         counter += 1
     util.write_csv('lr_output', data)
 
@@ -135,5 +139,5 @@ if (__name__ == '__main__'):
     W = logistic_regression(W, matrix, delta, eta, lam)
 
     Y = W * X.transpose()
-    YT = Y.transpose()
-    classify(YT.toarray())
+    classify(Y.transpose().todense())
+    #get_accuracy_score('lr_output')
