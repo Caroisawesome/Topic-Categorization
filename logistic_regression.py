@@ -6,7 +6,7 @@ import sys
 import numpy as np
 import util
 
-num_iterations = 100
+num_iterations = 10000
 num_classes = 20
 num_instances = 12000
 
@@ -42,11 +42,23 @@ def create_scipy_csr(filename):
 
 def probability_values(W, X):
     matrix = W * X.transpose()
-    ones = np.ones((num_classes,num_instances))
-    ones = ones.tolist()
-    ones = csr_matrix(ones)
-    mat = matrix.expm1() + ones
-    mat = add_row_of_ones(mat)
+    #matrix = normalize_matrix(matrix)
+#    print(matrix.toarray())
+    #(w,h) = matrix.get_shape()
+#    print(w,h)
+    #ones = np.ones((w,h))
+    #ones = ones.tolist()
+    #ones = csr_matrix(ones, dtype=np.float64)
+
+    #if(len(matrix.data) > 0):
+    #   print("before exp",matrix.data[0])
+    #mat = matrix.expm1() + ones
+    for i in range(0,len(matrix.data)):
+        matrix.data[i] = np.exp(matrix.data[i])
+    #mat = scipy.exp(matrix)
+    #if(len(matrix.data) > 0):
+    #    print("after exp",matrix.data[0])
+    mat = add_row_of_ones(matrix)
     return normalize_matrix(mat)
 
 def add_row_of_ones(matrix):
@@ -69,7 +81,7 @@ def normalize_matrix(matrix):
             counts[col] = val
 
     for i in range(0, num_entries):
-        if (counts[matrix.indices[i]] > abs(1e-10)):
+        if (abs(counts[matrix.indices[i]]) > 1e-10):
             div_val = matrix.data[i] / counts[matrix.indices[i]]
             matrix.data[i] = div_val
         else:
@@ -77,6 +89,25 @@ def normalize_matrix(matrix):
 
     return matrix
 
+def row_normalize_matrix(matrix):
+    num_rows = len(matrix.indptr)-1
+
+    for i in range(0, num_rows):
+        start_idx = matrix.indptr[i]
+        if (i == num_rows-1):
+            end_idx = len(matrix.data)
+        else:
+            end_idx = matrix.indptr[i+1]
+        sum = 0
+        for j in range(start_idx, end_idx):
+            val = matrix.data[j]
+            sum += val
+        for j in range(start_idx, end_idx):
+            if (abs(sum) > 1e-10):
+                matrix.data[j] = matrix.data[j] / sum
+            else:
+                matrix.data[j] = 0
+    return matrix
 
 def build_delta_matrix(matrix):
     data = []
@@ -100,16 +131,17 @@ def logistic_regression(W, X, Del, eta, lam):
 
 
 def classify(Y):
-    sig = 1/(1+scipy.exp(-Y))
+    sig = 1/(1+np.exp(-Y))
+    print(sig.shape)
     idxs = np.argmax(sig, axis=1)
-    #print(idxs)
-    #print(len(idxs))
-    #print(idxs[0,0])
+    print(idxs)
+    print(len(idxs))
+#    print(idxs[0,0])
     counter = 12001
     data = []
     num_rows = len(idxs)
     for i in range(0, num_rows):
-        data.append([counter, idxs[i,0]+1])
+        data.append([counter, idxs[i]+1])
         counter += 1
     util.write_csv('lr_output', data)
 
@@ -130,14 +162,23 @@ if (__name__ == '__main__'):
 
     obj = np.zeros((num_classes, 61188 + 1))
     obj2 = obj.tolist()
+    #print(obj2)
+    #W  = csr_matrix((num_classes, 61188+1), dtype=np.float64)
     W = csr_matrix(obj2, dtype=np.float64)
     delta = build_delta_matrix(mat)
 
     # remove column with class values from training data
     mat_size = matrix.get_shape()
     matrix.resize((mat_size[0], mat_size[1]-1))
-    W = logistic_regression(W, matrix, delta, eta, lam)
+    mat_norm = row_normalize_matrix(matrix)
+    W = logistic_regression(W, mat_norm, delta, eta, lam)
+    print(W.toarray())
 
+    print(X.get_shape())
+    print(W.get_shape())
+    #sig = probability_values(W,X)
+    #print(sig)
+    X = row_normalize_matrix(X)
     Y = W * X.transpose()
-    classify(Y.transpose().todense())
+    classify(Y.transpose().toarray())
     #get_accuracy_score('lr_output')
