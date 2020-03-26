@@ -153,6 +153,7 @@ def get_accuracy_score(correct_data, classified_data):
         reader = csv.reader(csvfile)
         # Read into list of lists
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        tmp.pop(0)
         for row in tmp:
             actual.append(row[0])
 
@@ -171,7 +172,7 @@ def get_accuracy_score(correct_data, classified_data):
 
 
 if (__name__ == '__main__'):
-    partition_csv('data/training.csv', 10000)
+    #partition_csv('data/training.csv', 10000)
     #print("main")
 #
 #    # Import data for Logistic Regression
@@ -188,15 +189,15 @@ if (__name__ == '__main__'):
 #    file2.close()
 #
     # Import data for Naive Bayes
-    #matrix_nb = process_csv('training_new.csv', False)
-    #matrix_nb_test = process_csv('testing_new.csv', False)
+    matrix_nb = process_csv('training_new.csv', False)
+    matrix_nb_test = process_csv('testing_new.csv', False)
 
-    #file_nb = open('sparse_training_nb', 'wb')
-    #file2_nb = open('sparse_testing_nb', 'wb')
+    file_nb = open('sparse_training_nb', 'wb')
+    file2_nb = open('sparse_testing_nb', 'wb')
 
-    #pickle.dump(matrix_nb, file_nb)
-    #pickle.dump(matrix_nb_test, file2_nb)
+    pickle.dump(matrix_nb, file_nb)
+    pickle.dump(matrix_nb_test, file2_nb)
 
-    #file_nb.close()
-    #file2_nb.close()
+    file_nb.close()
+    file2_nb.close()
 
