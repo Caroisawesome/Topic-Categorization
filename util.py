@@ -39,10 +39,28 @@ class Sparse_CSR:
             out.append(self.data[i])
         return out
 
+#def partition_csv(name, first):
+#    """
+#
+#    Take the name for a CSV along with the size of the first partition 
+#    and break the csv into two files.
+#
+#    """
+#    with open(name, 'r') as csvfile:
+#        reader = csv.reader(csvfile)
+#        # Read into list of lists
+#        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+#        split_a = tmp[:first]
+#        split_b = tmp[first:]
+#        write_csv('training_new.csv', split_a)
+#        write_csv('testing_new.csv',  split_b)
+#        #print(len(split_a))
+#        #print(len(split_b))
+
 def partition_csv(name, first):
     """
 
-    Take the name for a CSV along with the size of the first partition 
+    Take the name for a CSV along with the size of the first partition
     and break the csv into two files.
 
     """
@@ -52,10 +70,17 @@ def partition_csv(name, first):
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
         split_a = tmp[:first]
         split_b = tmp[first:]
-        write_csv('training_new.csv', split_a)
-        write_csv('testing_new.csv',  split_b)
-        #print(len(split_a))
-        #print(len(split_b))
+        split_c = [[]]
+        last = len(split_b[0]) - 1
+        for i in range(0, len(split_b)):
+            split_c.append([split_b[i][last]])
+            del split_b[i][last]
+        write_csv_new('training_new', split_a)
+        write_csv_new('testing_new',  split_b)
+        write_csv_new('test_col',     split_c)
+        #print(len(split_a[0]))
+        #print(len(split_b[0]))
+        print(split_c)
 
 
 def write_csv(name, data):
@@ -69,7 +94,21 @@ def write_csv(name, data):
         writer = csv.writer(csvfile, delimiter = ',')
         writer.writerow(['id', 'class'])
         for x in data:
+            #print(x)
             writer.writerow(x)
+
+def write_csv_new(name, data):
+    """
+
+    Write data to csv file. Takes desired filename and data to be written.
+
+    """
+    file = name + '.csv'
+    with open(file, 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter = ',')
+        for x in data:
+            writer.writerow(x)
+
 
 def process_csv(filename, ones):
     """
@@ -107,8 +146,33 @@ def process_csv(filename, ones):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-#if (__name__ == '__main__'):
-#    #print("main")
+def get_accuracy_score(correct_data, classified_data):
+    actual = []
+    guess = []
+    with open(correct_data, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        # Read into list of lists
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        for row in tmp:
+            actual.append(row[0])
+
+    with open(classified_data,'r') as csvfile:
+        reader = csv.reader(csvfile)
+        # Read into list of lists
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        for row in tmp:
+            guess.append(row[1])
+
+    num_correct = 0
+    for i in range(1,len(actual)):
+        if (actual[i-1] == guess[i]):
+            num_correct+=1
+    return num_correct/len(actual)
+
+
+if (__name__ == '__main__'):
+    partition_csv('data/training.csv', 10000)
+    #print("main")
 #
 #    # Import data for Logistic Regression
 #    matrix_lr = process_csv('data/training.csv', True)
@@ -123,16 +187,16 @@ def process_csv(filename, ones):
 #    file.close()
 #    file2.close()
 #
-#    # Import data for Naive Bayes
-#    matrix_nb = process_csv('data/training.csv', False)
-#    matrix_nb_test = process_csv('data/testing.csv', False)
-#
-#    file_nb = open('sparse_training_nb', 'wb')
-#    file2_nb = open('sparse_testing_nb', 'wb')
-#
-#    pickle.dump(matrix_nb, file)
-#    pickle.dump(matrix_nb_test, file2)
-#
-#    file_nb.close()
-#    file2_nb.close()
+    # Import data for Naive Bayes
+    #matrix_nb = process_csv('training_new.csv', False)
+    #matrix_nb_test = process_csv('testing_new.csv', False)
+
+    #file_nb = open('sparse_training_nb', 'wb')
+    #file2_nb = open('sparse_testing_nb', 'wb')
+
+    #pickle.dump(matrix_nb, file_nb)
+    #pickle.dump(matrix_nb_test, file2_nb)
+
+    #file_nb.close()
+    #file2_nb.close()
 
