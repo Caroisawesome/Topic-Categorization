@@ -74,7 +74,7 @@ def classify(cond_prob_matrix, class_prob, testing_csr):
         class_id = classify_row(i, class_prob, cond_prob_matrix, testing_csr)
         data.append([counter, class_id])
         counter += 1
-    util.write_csv('output', data)
+    util.write_csv('output_nb', data)
 
 
 if (__name__ == '__main__'):
@@ -96,3 +96,5 @@ if (__name__ == '__main__'):
     alpha = 1 + beta
     (conditional_probability_matrix, class_probabilities) = get_class_word_probabilities(matrix, alpha)
     classify(conditional_probability_matrix, class_probabilities, matrix2)
+    score = util.get_accuracy_score('test_col.csv', 'output_nb.csv')
+    print(score)
