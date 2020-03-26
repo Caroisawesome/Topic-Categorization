@@ -42,22 +42,8 @@ def create_scipy_csr(filename):
 
 def probability_values(W, X):
     matrix = W * X.transpose()
-    #matrix = normalize_matrix(matrix)
-#    print(matrix.toarray())
-    #(w,h) = matrix.get_shape()
-#    print(w,h)
-    #ones = np.ones((w,h))
-    #ones = ones.tolist()
-    #ones = csr_matrix(ones, dtype=np.float64)
-
-    #if(len(matrix.data) > 0):
-    #   print("before exp",matrix.data[0])
-    #mat = matrix.expm1() + ones
     for i in range(0,len(matrix.data)):
         matrix.data[i] = np.exp(matrix.data[i])
-    #mat = scipy.exp(matrix)
-    #if(len(matrix.data) > 0):
-    #    print("after exp",matrix.data[0])
     mat = add_row_of_ones(matrix)
     return normalize_matrix(mat)
 
@@ -132,11 +118,7 @@ def logistic_regression(W, X, Del, eta, lam):
 
 def classify(Y):
     sig = 1/(1+np.exp(-Y))
-    print(sig.shape)
     idxs = np.argmax(sig, axis=1)
-    print(idxs)
-    print(len(idxs))
-#    print(idxs[0,0])
     counter = 12001
     data = []
     num_rows = len(idxs)
@@ -160,11 +142,10 @@ if (__name__ == '__main__'):
     mat, matrix = create_scipy_csr('sparse_training_lr')
     test_data, X = create_scipy_csr('sparse_testing_lr')
 
-    obj = np.zeros((num_classes, 61188 + 1))
-    obj2 = obj.tolist()
-    #print(obj2)
-    #W  = csr_matrix((num_classes, 61188+1), dtype=np.float64)
-    W = csr_matrix(obj2, dtype=np.float64)
+    #obj = np.zeros((num_classes, 61188 + 1))
+    #obj2 = obj.tolist()
+    W  = csr_matrix((num_classes, 61188+1), dtype=np.float64)
+    #W = csr_matrix(obj2, dtype=np.float64)
     delta = build_delta_matrix(mat)
 
     # remove column with class values from training data
