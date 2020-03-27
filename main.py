@@ -9,6 +9,11 @@ num_words = 61189
 num_classes = 20
 
 def create_conditional_totals_matrix(crs_matrix):
+    """
+
+    Creates a (num_classes by num_words) conditional matrix storing the total counts for each class.
+
+    """
     M = np.zeros((num_classes, num_words))
     class_totals = np.zeros(num_classes)
     row_sums = np.zeros(num_classes)
@@ -31,7 +36,11 @@ def create_conditional_totals_matrix(crs_matrix):
     return (M, class_totals, row_sums)
 
 def create_conditional_probabilities_matrix(regular_matrix, class_totals, row_sums, alpha):
+    """
 
+    Creates a conditional probabilities matrix, based on the class totals and row sums.
+
+    """
     conditional_m = np.zeros((num_classes,num_words))
     class_probabilities = np.zeros(num_classes)
     num_rows = len(regular_matrix)
@@ -45,6 +54,11 @@ def create_conditional_probabilities_matrix(regular_matrix, class_totals, row_su
     return (conditional_m, class_probabilities)
 
 def get_class_word_probabilities(crs_matrix, alpha):
+    """
+
+    Return a matrix that stores the conditional probabilities of a word given a particular class.
+
+    """
     (conditional_totals, class_totals, row_sums) = create_conditional_totals_matrix(crs_matrix)
     (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals, row_sums, alpha)
     return (conditional_probabilities, class_probabilities)
@@ -77,11 +91,6 @@ def classify(cond_prob_matrix, class_prob, testing_csr):
     util.write_csv('output_nb', data)
 
 def multi_classification_nb(b):
-    #if len(sys.argv) < 2:
-    #    print("Must enter commandline arguments <Beta>")
-    #    print("Beta: between 0.00001 and 1")
-    #    exit(0)
-
     beta = b
     file = open('sparse_training_nb', 'rb')
     file2 = open('sparse_testing_nb', 'rb')
