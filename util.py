@@ -108,7 +108,7 @@ def partition_csv(name, first):
         write_csv_new('test_col',     split_c)
         #print(len(split_a[0]))
         #print(len(split_b[0]))
-        print(split_c)
+        #print(split_c)
 
 
 def write_csv(name, data):
@@ -174,6 +174,37 @@ def process_csv(filename, ones):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
+def process_csv_ones(filename):
+    """
+
+    Function for reading csv data files.
+    Takes filename as argument. Uses CSR format
+
+    """
+    tmp  = []
+    data = []
+    cols = []
+    rows = []
+    with open(filename, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        # reads csv into a list of lists
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        for row in tmp:
+            for i in range(0, len(row)):
+
+                if (i == 0):
+                    data.append(1)
+                    cols.append(0)
+                    rows.append(len(data)-1)
+                else:
+                    val = int(row[i])
+                    if val > 0:
+                        data.append(val)
+                        cols.append(i)
+    matrix = Sparse_CSR(data, rows, cols)
+    return matrix
+
+
 def get_accuracy_score(correct_data, classified_data):
     """
 
@@ -206,23 +237,21 @@ def get_accuracy_score(correct_data, classified_data):
     return num_correct/len(actual)
 
 
-if (__name__ == '__main__'):
-    #partition_csv('data/training.csv', 10000)
-    #print("main")
-#
-#    # Import data for Logistic Regression
-#    matrix_lr = process_csv('data/training.csv', True)
-#    matrix_lr_test = process_csv('data/testing.csv', True)
-#
-#    file = open('sparse_training_lr', 'wb')
-#    file2 = open('sparse_testing_lr', 'wb')
-#
-#    pickle.dump(matrix_lr, file)
-#    pickle.dump(matrix_lr_test, file2)
-#
-#    file.close()
-#    file2.close()
-#
+def process_data_for_lr():
+    # Import data for Logistic Regression
+    matrix_lr = process_csv_ones('training_new.csv')
+    matrix_lr_test = process_csv_ones('testing_new.csv')
+
+    file = open('sparse_training_lr', 'wb')
+    file2 = open('sparse_testing_lr', 'wb')
+
+    pickle.dump(matrix_lr, file)
+    pickle.dump(matrix_lr_test, file2)
+
+    file.close()
+    file2.close()
+
+def process_data_for_nb():
     # Import data for Naive Bayes
     matrix_nb = process_csv('training_new.csv', False)
     matrix_nb_test = process_csv('testing_new.csv', False)
@@ -236,3 +265,8 @@ if (__name__ == '__main__'):
     file_nb.close()
     file2_nb.close()
 
+
+if (__name__ == '__main__'):
+    partition_csv('data/training.csv', 10000)
+    process_data_for_lr()
+    #process_data_for_nb()

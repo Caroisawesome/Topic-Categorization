@@ -6,10 +6,9 @@ import sys
 import numpy as np
 import util
 
-num_iterations = 10000
+num_iterations = 100
 num_classes = 20
 num_instances = 12000
-
 def create_scipy_csr(filename):
     file1 = open(filename, 'rb')
     matrix = pickle.load(file1)
@@ -62,10 +61,11 @@ def row_normalize_matrix(matrix):
         else:
             end_idx = matrix.indptr[i+1]
         sum = 0
-        for j in range(start_idx, end_idx):
+        # skip first element of row because it has to be 1.
+        for j in range(start_idx+1, end_idx):
             val = matrix.data[j]
             sum += val
-        for j in range(start_idx, end_idx):
+        for j in range(start_idx+1, end_idx):
             if (abs(sum) > 1e-10):
                 matrix.data[j] = matrix.data[j] / sum
             else:
@@ -118,11 +118,10 @@ if (__name__ == '__main__'):
 
     mat, matrix = create_scipy_csr('sparse_training_lr')
     test_data, X = create_scipy_csr('sparse_testing_lr')
+    print('training', matrix.get_shape())
+    print("testing", X.get_shape())
 
-    #obj = np.zeros((num_classes, 61188 + 1))
-    #obj2 = obj.tolist()
     W  = csr_matrix((num_classes, 61188+1), dtype=np.float64)
-    #W = csr_matrix(obj2, dtype=np.float64)
     delta = build_delta_matrix(mat)
 
     # remove column with class values from training data
@@ -130,8 +129,8 @@ if (__name__ == '__main__'):
     matrix.resize((mat_size[0], mat_size[1]-1))
     mat_norm = row_normalize_matrix(matrix)
     W = logistic_regression(W, mat_norm, delta, eta, lam)
-    print(W.toarray())
 
+    print(W.toarray())
     print(X.get_shape())
     print(W.get_shape())
     #sig = probability_values(W,X)
@@ -139,4 +138,5 @@ if (__name__ == '__main__'):
     X = row_normalize_matrix(X)
     Y = W * X.transpose()
     classify(Y.transpose().toarray())
-    #get_accuracy_score('lr_output')
+    score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')
+    print(score)
