@@ -5,6 +5,11 @@ import csv
 import pickle
 
 class Sparse_CSR:
+    """
+
+    Class for representing a matrix in Sparse CSR format
+
+    """
     def __init__(self, data, rows, cols):
         self.data = data
         self.rows = rows
@@ -13,6 +18,11 @@ class Sparse_CSR:
         self.len_data = len(data)
 
     def access_element(self, row, col):
+        """
+
+        Returns the data element at index (row, column) in the matrix.
+
+        """
         row_val  = self.rows[row]
         data_idx = row_val
         cols     = self.cols[row_val]
@@ -24,16 +34,34 @@ class Sparse_CSR:
         return 0
 
     def last_col_value(self, row):
+        """
+
+        Returns the data value of the last item in the row.
+        row: index of the row
+
+        """
         idx = self.get_idx_last_item_in_row(row)
         return self.data[idx]
 
     def get_idx_last_item_in_row(self, row):
+        """
+
+        Returns the index of where the last item in the row is stored in the data array.
+        row: index of the row
+
+        """
         if self.num_rows == row + 1:
             return self.len_data - 1
         else:
             return self.rows[row + 1] - 1
 
     def get_row(self, row):
+        """
+
+        Returns an array containing the data values corresponding with a particular row,
+             as they are stored in sparse CRS format. 
+
+        """
         out = []
         for i in range(self.rows[row], self.get_idx_last_item_in_row(row)+1):
             out.append(self.data[i])
@@ -147,6 +175,13 @@ def process_csv(filename, ones):
     return matrix
 
 def get_accuracy_score(correct_data, classified_data):
+    """
+
+    Returns the accuracy score between 0 and 1, between two answer sets.
+    correct_data:  The filename containing of the file the correctly classified values
+    classified_data: The filename of the file containing the "guess" values
+
+    """
     actual = []
     guess = []
     with open(correct_data, 'r') as csvfile:
