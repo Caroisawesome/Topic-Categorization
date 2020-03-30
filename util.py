@@ -165,6 +165,7 @@ def process_csv(filename, start_col):
         # reads csv into a list of lists
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
         #yield next(reader)
+        print("columns", len(tmp[0]))
         for row in tmp:
             for i in range(start_col, len(row)):
                 val = int(row[i])
@@ -179,6 +180,8 @@ def process_csv(filename, start_col):
         #    data.append((row[0], row[1], row[2]))
     #for d in data: #    print(d)
     matrix = Sparse_CSR(data, rows, cols)
+    matrix_scipy = csr_matrix((matrix.data, matrix.cols, matrix.rows), dtype=np.float64)
+    print("matrix size", matrix_scipy.get_shape())
     return matrix
 
 
@@ -245,7 +248,7 @@ def process_data_for_nb():
 
 if (__name__ == '__main__'):
     print('begin partition')
-    partition_csv_alt('data/training.csv', 10000)
+    #partition_csv_alt('data/training.csv', 10000)
     print('end partition')
     process_data_for_lr()
     #process_data_for_nb()
