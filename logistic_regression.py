@@ -111,10 +111,14 @@ if (__name__ == '__main__'):
     training_old, training = create_scipy_csr('sparse_training_lr')
     test_data, X = create_scipy_csr('sparse_testing_lr')
 
+    print("training dimensions", training.get_shape())
+
     # if a column of 0s got truncated due to CRS format. Then add back in?
     (xr,xc) = X.get_shape()
-    if (xc == 61188):
-        X.resize((xr,xc+1))
+    print("test dimensions", xr,xc)
+    if (xc < 61189):
+        print("resizing test")
+        X.resize((xr,61189))
 
     # Initialize weight and delta matrix
     W  = csr_matrix((num_classes, 61188+1), dtype=np.float64)

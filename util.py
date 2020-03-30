@@ -1,8 +1,8 @@
 from scipy.sparse import csr_matrix
 import numpy as np
-#import pandas
 import csv
 import pickle
+import random
 
 class Sparse_CSR:
     """
@@ -67,23 +67,30 @@ class Sparse_CSR:
             out.append(self.data[i])
         return out
 
-#def partition_csv(name, first):
-#    """
-#
-#    Take the name for a CSV along with the size of the first partition 
-#    and break the csv into two files.
-#
-#    """
-#    with open(name, 'r') as csvfile:
-#        reader = csv.reader(csvfile)
-#        # Read into list of lists
-#        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
-#        split_a = tmp[:first]
-#        split_b = tmp[first:]
-#        write_csv('training_new.csv', split_a)
-#        write_csv('testing_new.csv',  split_b)
-#        #print(len(split_a))
-#        #print(len(split_b))
+
+def partition_csv_alt(name, first):
+    print("partitioning")
+    answers = []
+    with open('training_new.csv', 'w') as csvfile:
+        writer = csv.writer(csvfile, delimiter = ',')
+
+        with open('testing_new.csv','w') as testcsv:
+            writer_test = csv.writer(testcsv, delimiter=',')
+
+            with open(name, 'r') as csvfile:
+                reader = csv.reader(csvfile)
+                for i, row in enumerate(reader):
+                    # overwrite id values with a column of 1s
+                    row[0] = 1
+                    if random.random() < 0.85:
+                        writer.writerow(row)
+                    else:
+                        class_val = row.pop()
+                        writer_test.writerow(row)
+                        answers.append([int(class_val)])
+
+    write_csv_new('test_col', answers)
+
 
 def partition_csv(name, first):
     """
@@ -92,23 +99,24 @@ def partition_csv(name, first):
     and break the csv into two files.
 
     """
-    with open(name, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        # Read into list of lists
-        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
-        split_a = tmp[:first]
-        split_b = tmp[first:]
-        split_c = [[]]
-        last = len(split_b[0]) - 1
-        for i in range(0, len(split_b)):
-            split_c.append([split_b[i][last]])
-            del split_b[i][last]
-        write_csv_new('training_new', split_a)
-        write_csv_new('testing_new',  split_b)
-        write_csv_new('test_col',     split_c)
-        #print(len(split_a[0]))
-        #print(len(split_b[0]))
-        #print(split_c)
+    print("opened csv file")
+    # Read into list of lists
+    tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+    #tmp = shuffle(tmp)
+    print("read in data", len(tmp))
+    split_a = tmp[:first]
+    split_b = tmp[first:]
+    split_c = [[]]
+    last = len(split_b[0]) - 1
+    for i in range(0, len(split_b)):
+        split_c.append([split_b[i][last]])
+        del split_b[i][last]
+    write_csv_new('training_new', split_a)
+    write_csv_new('testing_new',  split_b)
+    write_csv_new('test_col',     split_c)
+    #print(len(split_a[0]))
+    #print(len(split_b[0]))
+    #print(split_c)
 
 
 def write_csv(name, data):
@@ -117,6 +125,7 @@ def write_csv(name, data):
     Write data to csv file. Takes desired filename and data to be written.
 
     """
+    print("in write csv function")
     file = name + '.csv'
     with open(file, 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter = ',')
@@ -138,7 +147,7 @@ def write_csv_new(name, data):
             writer.writerow(x)
 
 
-def process_csv(filename, ones):
+def process_csv(filename, start_col):
     """
 
     Function for reading csv data files.
@@ -155,11 +164,9 @@ def process_csv(filename, ones):
         reader = csv.reader(csvfile)
         # reads csv into a list of lists
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
-        if ones == True:
-            tmp[:0] = [np.ones(len(tmp[0]))]
         #yield next(reader)
         for row in tmp:
-            for i in range(1, len(row)):
+            for i in range(start_col, len(row)):
                 val = int(row[i])
                 if val > 0:
                     data.append(val)
@@ -171,38 +178,6 @@ def process_csv(filename, ones):
             flag = False
         #    data.append((row[0], row[1], row[2]))
     #for d in data: #    print(d)
-    matrix = Sparse_CSR(data, rows, cols)
-    return matrix
-
-def process_csv_ones(filename, debug):
-    """
-
-    Function for reading csv data files.
-    Takes filename as argument. Uses CSR format
-
-    """
-    tmp  = []
-    data = []
-    cols = []
-    rows = []
-    with open(filename, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        # reads csv into a list of lists
-        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
-        print("row size", len(tmp[0]))
-        for row in tmp:
-            for i in range(0, len(row)):
-                if (i == 0):
-                    data.append(1)
-                    cols.append(0)
-                    rows.append(len(data)-1)
-                else:
-                    val = int(row[i])
-                    if (debug and val > 0 and i == len(row)-1):
-                        print("last", val)
-                    if val > 0:
-                        data.append(val)
-                        cols.append(i)
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
@@ -241,8 +216,8 @@ def get_accuracy_score(correct_data, classified_data):
 
 def process_data_for_lr():
     # Import data for Logistic Regression
-    matrix_lr = process_csv_ones('training_new.csv', False)
-    matrix_lr_test = process_csv_ones('testing_new.csv', True)
+    matrix_lr = process_csv('training_new.csv',0)
+    matrix_lr_test = process_csv('testing_new.csv',0)
 
     file = open('sparse_training_lr', 'wb')
     file2 = open('sparse_testing_lr', 'wb')
@@ -255,8 +230,8 @@ def process_data_for_lr():
 
 def process_data_for_nb():
     # Import data for Naive Bayes
-    matrix_nb = process_csv('training_new.csv', False)
-    matrix_nb_test = process_csv('testing_new.csv', False)
+    matrix_nb = process_csv('training_new.csv',1)
+    matrix_nb_test = process_csv('testing_new.csv',1)
 
     file_nb = open('sparse_training_nb', 'wb')
     file2_nb = open('sparse_testing_nb', 'wb')
@@ -269,6 +244,8 @@ def process_data_for_nb():
 
 
 if (__name__ == '__main__'):
-    #partition_csv('data/training.csv', 10000)
+    print('begin partition')
+    partition_csv_alt('data/training.csv', 10000)
+    print('end partition')
     process_data_for_lr()
     #process_data_for_nb()
