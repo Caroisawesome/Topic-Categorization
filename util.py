@@ -174,7 +174,7 @@ def process_csv(filename, ones):
     matrix = Sparse_CSR(data, rows, cols)
     return matrix
 
-def process_csv_ones(filename):
+def process_csv_ones(filename, debug):
     """
 
     Function for reading csv data files.
@@ -189,15 +189,17 @@ def process_csv_ones(filename):
         reader = csv.reader(csvfile)
         # reads csv into a list of lists
         tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        print("row size", len(tmp[0]))
         for row in tmp:
             for i in range(0, len(row)):
-
                 if (i == 0):
                     data.append(1)
                     cols.append(0)
                     rows.append(len(data)-1)
                 else:
                     val = int(row[i])
+                    if (debug and val > 0 and i == len(row)-1):
+                        print("last", val)
                     if val > 0:
                         data.append(val)
                         cols.append(i)
@@ -239,8 +241,8 @@ def get_accuracy_score(correct_data, classified_data):
 
 def process_data_for_lr():
     # Import data for Logistic Regression
-    matrix_lr = process_csv_ones('training_new.csv')
-    matrix_lr_test = process_csv_ones('testing_new.csv')
+    matrix_lr = process_csv_ones('training_new.csv', False)
+    matrix_lr_test = process_csv_ones('testing_new.csv', True)
 
     file = open('sparse_training_lr', 'wb')
     file2 = open('sparse_testing_lr', 'wb')
@@ -267,6 +269,6 @@ def process_data_for_nb():
 
 
 if (__name__ == '__main__'):
-    partition_csv('data/training.csv', 10000)
+    #partition_csv('data/training.csv', 10000)
     process_data_for_lr()
     #process_data_for_nb()
