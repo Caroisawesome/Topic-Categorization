@@ -82,7 +82,8 @@ def partition_csv_alt(name, first):
                 for i, row in enumerate(reader):
                     # overwrite id values with a column of 1s
                     row[0] = 1
-                    if random.random() < 0.85:
+                    #if random.random() < 0.85:
+                    if i < first:
                         writer.writerow(row)
                     else:
                         class_val = row.pop()
@@ -247,8 +248,6 @@ def process_data_for_nb():
 
 
 if (__name__ == '__main__'):
-    print('begin partition')
-    #partition_csv_alt('data/training.csv', 10000)
-    print('end partition')
+    partition_csv_alt('data/training.csv', 10000)
     process_data_for_lr()
     #process_data_for_nb()
