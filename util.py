@@ -248,10 +248,6 @@ def process_data_for_nb():
 
 
 if (__name__ == '__main__'):
-<<<<<<< HEAD
     partition_csv('data/training.csv', 10000)
-=======
-    partition_csv_alt('data/training.csv', 10000)
->>>>>>> ef567fb92fe1b6c58988cef742a752401869b298
     process_data_for_lr()
     #process_data_for_nb()
