@@ -102,22 +102,24 @@ def partition_csv(name, first):
     """
     print("opened csv file")
     # Read into list of lists
-    tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
-    #tmp = shuffle(tmp)
-    print("read in data", len(tmp))
-    split_a = tmp[:first]
-    split_b = tmp[first:]
-    split_c = [[]]
-    last = len(split_b[0]) - 1
-    for i in range(0, len(split_b)):
-        split_c.append([split_b[i][last]])
-        del split_b[i][last]
-    write_csv_new('training_new', split_a)
-    write_csv_new('testing_new',  split_b)
-    write_csv_new('test_col',     split_c)
-    #print(len(split_a[0]))
-    #print(len(split_b[0]))
-    #print(split_c)
+    with open(name, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        tmp = list(list(rec) for rec in csv.reader(csvfile, delimiter=','))
+        #tmp = shuffle(tmp)
+        print("read in data", len(tmp))
+        split_a = tmp[:first]
+        split_b = tmp[first:]
+        split_c = [[]]
+        last = len(split_b[0]) - 1
+        for i in range(0, len(split_b)):
+            split_c.append([split_b[i][last]])
+            del split_b[i][last]
+        write_csv_new('training_new', split_a)
+        write_csv_new('testing_new',  split_b)
+        write_csv_new('test_col',     split_c)
+        #print(len(split_a[0]))
+        #print(len(split_b[0]))
+        #print(split_c)
 
 
 def write_csv(name, data):
@@ -169,7 +171,10 @@ def process_csv(filename, start_col):
         print("columns", len(tmp[0]))
         for row in tmp:
             for i in range(start_col, len(row)):
-                val = int(row[i])
+                if i == 0:
+                    val = 1
+                else:
+                    val = int(row[i])
                 if val > 0:
                     data.append(val)
                     cols.append(i)
@@ -248,6 +253,6 @@ def process_data_for_nb():
 
 
 if (__name__ == '__main__'):
-    partition_csv_alt('data/training.csv', 10000)
+    partition_csv('data/training.csv', 10000)
     process_data_for_lr()
     #process_data_for_nb()
