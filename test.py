@@ -26,7 +26,8 @@ def plot_naive_bayes(step_size):
 
 
 def perform_other_tests():
-    mat = [[1,3,0,3],[2,7,0,1],[0,0,1,2]]
+
+    mat = [[1,3,0,0],[2,7,0,0],[0,0,1,0]]
     print(mat)
     csr_mat = csr_matrix(mat, dtype=np.float64)
     #in_house_csr = Sparse_CSR([1,3,3,2,7,1,1,2],  [0,3,6], [0,1,3,0,1,3,2,3])
@@ -51,6 +52,16 @@ def perform_other_tests():
 
 if (__name__ == '__main__'):
     #perform_other_tests()
-    plot_naive_bayes(0.00001)
+    #plot_naive_bayes(0.00001)
 
-    
+    #mat = util.process_csv('test.csv',0)
+
+
+    mat = [[1,3,0,0],[2,7,0,0],[0,0,1,0]]
+    mat_csr = csr_matrix(mat)
+    print(mat_csr.get_shape())
+    print(mat_csr.toarray())
+
+    mat_csr.resize(3,6)
+    print(mat_csr.get_shape())
+    print(mat_csr.toarray())
