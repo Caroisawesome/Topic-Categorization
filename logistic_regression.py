@@ -145,14 +145,16 @@ if (__name__ == '__main__'):
     training.resize((mat_size[0], mat_size[1]-1))
 
     # normalize by columns
-    training_norm = normalize(training, norm='l1',axis=0) * 1/1000
+    #training_norm = normalize(training, norm='l1',axis=0) * 1/1000
+    training_norm = training * 1/1000
 
     # Call logistic regression
     W = logistic_regression(W, training_norm, delta, eta, lam)
 
     #print("W=", W.toarray())
 
-    X = normalize(X, norm='l1',axis=0) * 1/1000 
+    #X = normalize(X, norm='l1',axis=0) * 1/1000
+    X = X * 1/1000
     Y = W @ X.transpose()
     classify(Y)
     score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')
