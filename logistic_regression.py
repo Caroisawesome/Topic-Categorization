@@ -1,7 +1,7 @@
 from util import Sparse_CSR
-from scipy.sparse import csr_matrix
+#from scipy.sparse import csr_matrix
+import scipy.sparse as sparse
 from sklearn.preprocessing import *
-import scipy
 import pickle
 import sys
 import numpy as np
@@ -14,15 +14,28 @@ num_instances = 12000
 def create_scipy_csr(filename):
     """
 
-    Reads data from pickle file, and converts it into a scipy.sparse.csr_matrix.
-    Returns the custom CSR matrix from Util.py, and also the scipy.sparse.csr_matrix.
+    Reads data from pickle file, and converts it into a scipy.sparse.sparse.csr_matrix.
+    Returns the custom CSR matrix from Util.py, and also the scipy.sparse.sparse.csr_matrix.
 
     """
     file1 = open(filename, 'rb')
     matrix = pickle.load(file1)
     file1.close()
-    matrix_scipy = csr_matrix((matrix.data, matrix.cols, matrix.rows), dtype=np.float64)
+    matrix_scipy = sparse.csr_matrix((matrix.data, matrix.cols, matrix.rows), dtype=np.float64)
     return matrix, matrix_scipy
+
+# def probability_values(W, X):
+#     """
+
+#     Computes P(Y|W,X), by computing exp(W*X') and normalizing by column.
+
+#     """
+#     matrix = W * X.transpose()
+#     #matrix = matrix.expm1()
+#     for i in range(0,len(matrix.data)):
+#         matrix.data[i] = np.exp(matrix.data[i])
+#     mat = add_row_of_ones(matrix)
+#     return normalize(mat, norm='l1',axis=0)
 
 def probability_values(W, X):
     """
@@ -30,12 +43,12 @@ def probability_values(W, X):
     Computes P(Y|W,X), by computing exp(W*X') and normalizing by column.
 
     """
-    matrix = W * X.transpose()
-    #matrix = matrix.expm1()
-    for i in range(0,len(matrix.data)):
-        matrix.data[i] = np.exp(matrix.data[i])
-    mat = add_row_of_ones(matrix)
-    return normalize(mat, norm='l1',axis=0)
+    matrix = W @ X.transpose()
+    matrix = np.expm1(matrix)
+    # sums = sparse.diags(1/matrix.sum(axis=0).A.ravel())
+    #matrix = matrix @ sums
+    matrix = matrix/matrix.sum(0)
+    return matrix
 
 def add_row_of_ones(matrix):
     """
@@ -46,7 +59,7 @@ def add_row_of_ones(matrix):
     lil_mat = matrix.toarray()
     (r,c) = lil_mat.shape
     lil_mat[r-1, :] = 1
-    return csr_matrix(lil_mat, dtype=np.float64)
+    return sparse.csr_matrix(lil_mat, dtype=np.float64)
 
 def build_delta_matrix(matrix):
     """
@@ -64,7 +77,7 @@ def build_delta_matrix(matrix):
         data.append(1)
         row.append(classification - 1)
         col.append(i-1)
-    delta = csr_matrix((data, (row, col)), dtype=np.float64)
+    delta = sparse.csr_matrix((data, (row, col)), dtype=np.float64)
     return delta
 
 def logistic_regression(W, X, Del, eta, lam):
@@ -77,7 +90,7 @@ def logistic_regression(W, X, Del, eta, lam):
     W1 = W
     for i in range(0, num_iterations):
         WX = probability_values(W1, X)
-        W1 = W1 + eta * ((Del - WX) * X - (lam * W1))
+        W1 = W1 + eta * ((Del - WX) @ X - (lam * W1))
     return W1
 
 def classify(Y):
@@ -87,13 +100,15 @@ def classify(Y):
 
     """
     # apply sigmoid function
-    sig = 1/(1+np.exp(-Y))
-    idxs = np.argmax(sig, axis=1)
+    #sig = 1/(1+np.exp(-Y))
+
+    idxs = np.argmax(Y, axis=0)
+    idxs = idxs.tolist()
     counter = 12001
     data = []
-    num_rows = len(idxs)
+    num_rows = len(idxs[0])
     for i in range(0, num_rows):
-        data.append([counter, idxs[i]+1])
+        data.append([counter, idxs[0][i]+1])
         counter += 1
     util.write_csv('lr_output', data)
 
@@ -121,7 +136,8 @@ if (__name__ == '__main__'):
         X.resize((xr,61189))
 
     # Initialize weight and delta matrix
-    W  = csr_matrix((num_classes, 61188+1), dtype=np.float64)
+    w = np.random.rand(num_classes, 61188+1)
+    W  = sparse.csr_matrix(w, dtype=np.float64)
     delta = build_delta_matrix(training_old)
 
     # Remove column with class values from training data
@@ -129,15 +145,15 @@ if (__name__ == '__main__'):
     training.resize((mat_size[0], mat_size[1]-1))
 
     # normalize by columns
-    training_norm = normalize(training, norm='l1',axis=0)
+    training_norm = normalize(training, norm='l1',axis=0) * 1/1000
 
     # Call logistic regression
     W = logistic_regression(W, training_norm, delta, eta, lam)
 
     #print("W=", W.toarray())
 
-    X = normalize(X, norm='l1',axis=0)
-    Y = W * X.transpose()
-    classify(Y.transpose().toarray())
+    X = normalize(X, norm='l1',axis=0) * 1/1000 
+    Y = W @ X.transpose()
+    classify(Y)
     score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')
     print(score)
