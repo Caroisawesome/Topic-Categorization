@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import util
 
-num_iterations = 1000
+num_iterations = 10000
 num_classes = 20
 num_instances = 12000
 
@@ -107,6 +107,44 @@ def classify(Y):
         data.append([counter, idxs[0][i]+1])
         counter += 1
     util.write_csv('lr_output', data)
+
+def multi_classification_lr(e, l):
+    eta = e
+    lam = l
+    training_old, training = create_scipy_csr('sparse_training_lr')
+    test_data, X = create_scipy_csr('sparse_testing_lr')
+
+    # if a column of 0s got truncated due to CRS format. Then add back in?
+    (xr,xc) = X.get_shape()
+    if (xc < 61189):
+        X.resize((xr,61189))
+
+    (xr,xc) = X.get_shape()
+    # Initialize weight and delta matrix
+    w = np.random.rand(num_classes, 61188+1)
+    W  = sparse.csr_matrix(w, dtype=np.float64)
+
+    #delta = build_delta_matrix(training_old)
+    delta = build_delta_jamie(training, xc)
+    delta = delta.T
+    # Remove column with class values from training data
+    mat_size = training.get_shape()
+    training.resize((mat_size[0], mat_size[1]-1))
+
+    # normalize by columns
+    training_norm = normalize(training, norm='l1',axis=0)
+    #training_norm = training * 1/1000
+
+    # Call logistic regression
+    W = logistic_regression(W, training_norm, delta, eta, lam)
+
+    X = normalize(X, norm='l1',axis=0)
+    #X = X * 1/1000
+    Y = W @ X.transpose()
+    classify(Y)
+    score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')
+    return score
+
 
 if (__name__ == '__main__'):
 

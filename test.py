@@ -25,6 +25,27 @@ def plot_naive_bayes(step_size):
     fig.savefig("naive-bayes.png")
     plt.show()
 
+def plot_logistic_regression(step_eta, step_lam):
+    eta = []
+    lam = []
+    acc = []
+    print('test')
+    for i in arange(0.001, 0.01, step_eta):
+        for j in arange(0.001, 0.01, step_lam):
+            eta.append(i)
+            lam.append(j)
+            print('eta = ', i, 'lam = ', j)
+            acc.append(lg.multi_classification_lr(i, j))
+    fig, ax = plt.subplots()
+    #ax.semilogx(eta, lam, acc)
+    ax.plot(eta, lam, acc)
+    ax.set(xlabel='Eta and Lambda', ylabel='Accuracy',
+           title='Logistic Regression: Eta 0.001 to 0.01 with ' + str(step_eta) +' step, Lambda 0.001 to 0.01 with ' + str(step_lam) + ' step')
+    ax.grid()
+    fig.savefig("logistic-regression.png")
+    plt.show()
+
+
 
 def perform_other_tests():
 
@@ -53,8 +74,8 @@ def perform_other_tests():
 
 if (__name__ == '__main__'):
     #perform_other_tests()
-    plot_naive_bayes(0.001)
-
+    #plot_naive_bayes(0.001)
+    plot_logistic_regression(0.01, 0.01)
     #mat = util.process_csv('test.csv',0)
 
 
