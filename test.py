@@ -75,7 +75,7 @@ def perform_other_tests():
 if (__name__ == '__main__'):
     #perform_other_tests()
     #plot_naive_bayes(0.001)
-    plot_logistic_regression(0.01, 0.01)
+    plot_logistic_regression(0.001, 0.001)
     #mat = util.process_csv('test.csv',0)
 
 

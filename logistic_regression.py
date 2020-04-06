@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import util
 
-num_iterations = 10000
+num_iterations = 1000
 num_classes = 20
 num_instances = 12000
 
