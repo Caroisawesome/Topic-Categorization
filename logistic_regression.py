@@ -1,6 +1,7 @@
 from util import Sparse_CSR
 #from scipy.sparse import csr_matrix
 import scipy.sparse as sparse
+import scipy
 from sklearn.preprocessing import *
 import pickle
 import sys
@@ -24,19 +25,6 @@ def create_scipy_csr(filename):
     matrix_scipy = sparse.csr_matrix((matrix.data, matrix.cols, matrix.rows), dtype=np.float64)
     return matrix, matrix_scipy
 
-# def probability_values(W, X):
-#     """
-
-#     Computes P(Y|W,X), by computing exp(W*X') and normalizing by column.
-
-#     """
-#     matrix = W * X.transpose()
-#     #matrix = matrix.expm1()
-#     for i in range(0,len(matrix.data)):
-#         matrix.data[i] = np.exp(matrix.data[i])
-#     mat = add_row_of_ones(matrix)
-#     return normalize(mat, norm='l1',axis=0)
-
 def probability_values(W, X):
     """
 
@@ -45,8 +33,6 @@ def probability_values(W, X):
     """
     matrix = W @ X.transpose()
     matrix = np.expm1(matrix)
-    # sums = sparse.diags(1/matrix.sum(axis=0).A.ravel())
-    #matrix = matrix @ sums
     matrix = matrix/matrix.sum(0)
     return matrix
 
@@ -80,6 +66,19 @@ def build_delta_matrix(matrix):
     delta = sparse.csr_matrix((data, (row, col)), dtype=np.float64)
     return delta
 
+def build_delta_jamie(train_data, num_columns):
+    train_row, train_col = train_data.shape
+    train_ones = np.ones((train_row), dtype = int)
+    training_labels = train_data[:,61189]
+    train_labels = sparse.csc_matrix.todense(training_labels)
+    train_labels = np.ravel(train_labels)
+    spectlabel = train_labels-1
+    trainid = np.arange(0,train_row+1)
+    delta = sparse.csr_matrix((train_ones, (np.squeeze(spectlabel)), trainid))
+    print('delta.shape=',delta.shape)
+    return delta
+
+
 def logistic_regression(W, X, Del, eta, lam):
     """
 
@@ -99,8 +98,6 @@ def classify(Y):
     Used the sigmoid function and argmax to determine the class corresponding to each example.
 
     """
-    # apply sigmoid function
-    #sig = 1/(1+np.exp(-Y))
 
     idxs = np.argmax(Y, axis=0)
     idxs = idxs.tolist()
@@ -126,35 +123,33 @@ if (__name__ == '__main__'):
     training_old, training = create_scipy_csr('sparse_training_lr')
     test_data, X = create_scipy_csr('sparse_testing_lr')
 
-    print("training dimensions", training.get_shape())
-
     # if a column of 0s got truncated due to CRS format. Then add back in?
     (xr,xc) = X.get_shape()
-    print("test dimensions", xr,xc)
     if (xc < 61189):
-        print("resizing test")
         X.resize((xr,61189))
 
+    (xr,xc) = X.get_shape()
     # Initialize weight and delta matrix
     w = np.random.rand(num_classes, 61188+1)
     W  = sparse.csr_matrix(w, dtype=np.float64)
-    delta = build_delta_matrix(training_old)
 
+    #delta = build_delta_matrix(training_old)
+    delta = build_delta_jamie(training, xc)
+    delta = delta.T
+    scipy.sparse.save_npz('caro_delta.npz', delta)
     # Remove column with class values from training data
     mat_size = training.get_shape()
     training.resize((mat_size[0], mat_size[1]-1))
 
     # normalize by columns
-    #training_norm = normalize(training, norm='l1',axis=0) * 1/1000
-    training_norm = training * 1/1000
+    training_norm = normalize(training, norm='l1',axis=0)
+    #training_norm = training * 1/1000
 
     # Call logistic regression
     W = logistic_regression(W, training_norm, delta, eta, lam)
 
-    #print("W=", W.toarray())
-
-    #X = normalize(X, norm='l1',axis=0) * 1/1000
-    X = X * 1/1000
+    X = normalize(X, norm='l1',axis=0)
+    #X = X * 1/1000
     Y = W @ X.transpose()
     classify(Y)
     score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')
