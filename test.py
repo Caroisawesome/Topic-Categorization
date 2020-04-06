@@ -17,8 +17,8 @@ def plot_naive_bayes(step_size):
         beta.append(i)
         acc.append(main.multi_classification_nb(i))
     fig, ax = plt.subplots()
-    #ax.semilogx(beta, acc)
-    ax.plot(beta, acc)
+    ax.semilogx(beta, acc)
+    #ax.plot(beta, acc)
     ax.set(xlabel='Beta', ylabel='Accuracy',
            title='Naive Bayes: Beta 0.00001 to 1 with ' + str(step_size) +' step')
     ax.grid()
@@ -53,7 +53,7 @@ def perform_other_tests():
 
 if (__name__ == '__main__'):
     #perform_other_tests()
-    plot_naive_bayes(0.01)
+    plot_naive_bayes(0.001)
 
     #mat = util.process_csv('test.csv',0)
 

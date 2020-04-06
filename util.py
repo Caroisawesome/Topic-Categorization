@@ -255,4 +255,4 @@ def process_data_for_nb():
 if (__name__ == '__main__'):
     partition_csv('data/training.csv', 10000)
     process_data_for_lr()
-    #process_data_for_nb()
+    process_data_for_nb()
