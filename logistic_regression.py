@@ -1,5 +1,4 @@
 from util import Sparse_CSR
-#from scipy.sparse import csr_matrix
 import scipy.sparse as sparse
 import scipy
 from sklearn.preprocessing import *
@@ -136,7 +135,6 @@ if (__name__ == '__main__'):
     #delta = build_delta_matrix(training_old)
     delta = build_delta_jamie(training, xc)
     delta = delta.T
-    scipy.sparse.save_npz('caro_delta.npz', delta)
     # Remove column with class values from training data
     mat_size = training.get_shape()
     training.resize((mat_size[0], mat_size[1]-1))
