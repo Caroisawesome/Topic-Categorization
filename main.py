@@ -1,3 +1,4 @@
+import logistic_regression as lg
 import pickle
 import numpy as np
 import math
@@ -61,7 +62,39 @@ def get_class_word_probabilities(crs_matrix, alpha):
     """
     (conditional_totals, class_totals, row_sums) = create_conditional_totals_matrix(crs_matrix)
     (conditional_probabilities, class_probabilities) = create_conditional_probabilities_matrix(conditional_totals, class_totals, row_sums, alpha)
+    score_words(conditional_probabilities, class_probabilities)
     return (conditional_probabilities, class_probabilities)
+
+def score_words(cond_prob, class_prob):
+    rows = cond_prob.shape[0]
+    cols = cond_prob.shape[1] - 1
+    H    = []
+    py   = 0
+    words = []
+    mat, mat2  = lg.create_scipy_csr('sparse_testing_nb')
+    #print(cond_prob.shape)
+    msum  = mat2.sum(0).tolist()
+    #print(msum)
+    with open('data/vocabulary.txt') as f:
+        for line in f:
+            words.append(line.rstrip())
+    print(cols)
+    print('length of words ', len(words))
+    for k in range(0, class_prob.shape[0]):
+        py += class_prob[k] * math.log2(class_prob[k])
+    py *= -1
+    for i in range(0, cols):
+        sums = 0
+        for j in range(0, rows):
+            sums += cond_prob[j, i] * math.log2(cond_prob[j, i])
+        sums *= -1
+        if msum[0][i] > 0:
+            H.append((sums / msum[0][i], words[i]))
+    H.sort(reverse=True)
+    util.write_csv_new('common-words', H)
+
+    #print(H[:100])
+    #print(len(H))
 
 def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
     probabilities = []

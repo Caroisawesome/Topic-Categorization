@@ -140,7 +140,7 @@ def write_csv(name, data):
 def write_csv_new(name, data):
     """
 
-    Write data to csv file. Takes desired filename and data to be written.
+    Write data to csv file. Takes desired filename and data to be written. No header
 
     """
     file = name + '.csv'
