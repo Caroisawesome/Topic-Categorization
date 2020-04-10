@@ -17,3 +17,16 @@ Run `python3 main.py {beta}` where `beta` is a term between  0.1 and 0.00001. Th
 
 Run `python3 logistic_regression {eta} {lambda}` where `eta` is a value between 0.01 and 0.001, and where `lambda` is between 0.1 and 0.001. This will return an accuracy score between 0 and 1, and will output a file `output_lr.csv` containing the classified values. 
 
+### To run Tests and Plots
+
+Run `python util.py` and then `python test.py`.
+
+To changes the types of tests being run, modify the main method in `test.py`.
+
+### To plot the confusion matrix 
+
+After running logistic regression, then run `python confusion_matrix.py`.
+
+
+
+

@@ -97,7 +97,7 @@ def score_words(cond_prob, class_prob):
         if msum[0][i] > 0:
             H.append((sums / msum[0][i], words[i]))
     H.sort(reverse=True)
-    util.write_csv_new('common-words', H)
+    util.write_csv_new('common-words', H[:100])
 
     #print(H[:100])
     #print(len(H))
