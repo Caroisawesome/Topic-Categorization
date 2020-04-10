@@ -66,6 +66,12 @@ def get_class_word_probabilities(crs_matrix, alpha):
     return (conditional_probabilities, class_probabilities)
 
 def score_words(cond_prob, class_prob):
+    """
+
+    Scores the words based on how much the classifier 'relies on' them when making a prediction.
+    The top 100 values are output to a csv.
+
+    """
     rows = cond_prob.shape[0]
     cols = cond_prob.shape[1] - 1
     H    = []
@@ -97,6 +103,11 @@ def score_words(cond_prob, class_prob):
     #print(len(H))
 
 def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
+    """
+
+    Classifies one particular row of training data
+
+    """
     probabilities = []
     classes       = []
     max_idx       = 0
@@ -115,6 +126,11 @@ def classify_row(row_num, class_prob, cond_prob_matrix, testing_csr):
     return classes[idx]
 
 def classify(cond_prob_matrix, class_prob, testing_csr):
+    """
+
+    Classifies all rows of training data, and saves the results to a csv.
+
+    """
     data = []
     counter = 12001
     for i in range(0, len(testing_csr.rows)):

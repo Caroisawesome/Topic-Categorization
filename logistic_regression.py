@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import util
 
-num_iterations = 1000
+num_iterations = 5000
 num_classes = 20
 num_instances = 12000
 
@@ -46,36 +46,24 @@ def add_row_of_ones(matrix):
     lil_mat[r-1, :] = 1
     return sparse.csr_matrix(lil_mat, dtype=np.float64)
 
-def build_delta_matrix(matrix):
+
+def build_delta(train_data, num_columns):
     """
+
+    This delta function was built with help from Jamie.
 
     Builds Delta matrix (20, #examples). Each column has a 1 in the row index corresponding to
            the class index that the corresponding example was classified as.
            All other values are 0.
 
     """
-    data = []
-    row  = []
-    col  = []
-    for i in range(1, len(matrix.rows)):
-        classification = matrix.last_col_value(i)
-        data.append(1)
-        row.append(classification - 1)
-        col.append(i-1)
-    delta = sparse.csr_matrix((data, (row, col)), dtype=np.float64)
-    return delta
-
-def build_delta_jamie(train_data, num_columns):
     train_row, train_col = train_data.shape
-    train_ones = np.ones((train_row), dtype = int)
+    # get all training labels from last column
     training_labels = train_data[:,61189]
     train_labels = sparse.csc_matrix.todense(training_labels)
-    train_labels = np.ravel(train_labels)
-    spectlabel = train_labels-1
-    trainid = np.arange(0,train_row+1)
-    delta = sparse.csr_matrix((train_ones, (np.squeeze(spectlabel)), trainid))
-    print('delta.shape=',delta.shape)
-    return delta
+    class_labels = np.squeeze(np.ravel(train_labels)-1)
+    deltas = np.ones((train_row), dtype = int)
+    return sparse.csr_matrix((deltas, class_labels,  np.arange(0,train_row+1)))
 
 
 def logistic_regression(W, X, Del, eta, lam):
@@ -97,7 +85,6 @@ def classify(Y):
     Used the sigmoid function and argmax to determine the class corresponding to each example.
 
     """
-
     idxs = np.argmax(Y, axis=0)
     idxs = idxs.tolist()
     counter = 12001
@@ -109,6 +96,12 @@ def classify(Y):
     util.write_csv('lr_output', data)
 
 def multi_classification_lr(e, l):
+    """
+
+    Performs the Multiclassification Logistic Regression Algorithm.
+    Can be called from outside the file. (works the same as __main__)
+
+    """
     eta = e
     lam = l
     training_old, training = create_scipy_csr('sparse_training_lr')
@@ -124,8 +117,7 @@ def multi_classification_lr(e, l):
     w = np.random.rand(num_classes, 61188+1)
     W  = sparse.csr_matrix(w, dtype=np.float64)
 
-    #delta = build_delta_matrix(training_old)
-    delta = build_delta_jamie(training, xc)
+    delta = build_delta(training, xc)
     delta = delta.T
     # Remove column with class values from training data
     mat_size = training.get_shape()
@@ -133,13 +125,11 @@ def multi_classification_lr(e, l):
 
     # normalize by columns
     training_norm = normalize(training, norm='l1',axis=0)
-    #training_norm = training * 1/1000
 
     # Call logistic regression
     W = logistic_regression(W, training_norm, delta, eta, lam)
 
     X = normalize(X, norm='l1',axis=0)
-    #X = X * 1/1000
     Y = W @ X.transpose()
     classify(Y)
     score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')
@@ -170,8 +160,7 @@ if (__name__ == '__main__'):
     w = np.random.rand(num_classes, 61188+1)
     W  = sparse.csr_matrix(w, dtype=np.float64)
 
-    #delta = build_delta_matrix(training_old)
-    delta = build_delta_jamie(training, xc)
+    delta = build_delta(training, xc)
     delta = delta.T
     # Remove column with class values from training data
     mat_size = training.get_shape()
@@ -179,13 +168,11 @@ if (__name__ == '__main__'):
 
     # normalize by columns
     training_norm = normalize(training, norm='l1',axis=0)
-    #training_norm = training * 1/1000
 
     # Call logistic regression
     W = logistic_regression(W, training_norm, delta, eta, lam)
 
     X = normalize(X, norm='l1',axis=0)
-    #X = X * 1/1000
     Y = W @ X.transpose()
     classify(Y)
     score = util.get_accuracy_score('test_col.csv', 'lr_output.csv')

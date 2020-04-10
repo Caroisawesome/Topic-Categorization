@@ -224,6 +224,11 @@ def get_accuracy_score(correct_data, classified_data):
 
 
 def process_data_for_lr():
+    """
+
+    Imports the partitioned Logistic Regression data and serializes and saves it in a pickle file
+
+    """
     # Import data for Logistic Regression
     matrix_lr = process_csv('training_new.csv',0)
     matrix_lr_test = process_csv('testing_new.csv',0)
@@ -238,6 +243,11 @@ def process_data_for_lr():
     file2.close()
 
 def process_data_for_nb():
+    """
+
+    Imports the partitioned Naive Bayes data and serializes and saves the data in a pickle file
+
+    """
     # Import data for Naive Bayes
     matrix_nb = process_csv('training_new.csv',1)
     matrix_nb_test = process_csv('testing_new.csv',1)
