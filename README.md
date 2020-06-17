@@ -1,6 +1,7 @@
 # Topic-Categorization
 
-This repo contains the code to perform a topic categorization task, using both Multinomial Naive Bayes, and Logistic Regression.
+This repo contains the code to perform a topic categorization task, using both Multinomial Naive Bayes, and Logistic Regression. Given a set of words which contain the number of times each word appears in the document, we identify one of twenty topics that correspond with the set of words. Using the Naive Bayes method we are able to get a top accuracy score of 88\% when classifying new data, and with Logistic Regression we are able to get an accuracy score of 81\%. The results can be seen in the `Naive_Bayes_and_Logistic_Regression.pdf` document.
+`
 
 ### To run the program
 
